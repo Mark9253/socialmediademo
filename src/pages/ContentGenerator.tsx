@@ -273,7 +273,9 @@ export const ContentGenerator = () => {
 
   const hasUnsavedChanges = (postId: string) => {
     const edits = editingPosts.get(postId);
-    return edits && Object.keys(edits).length > 0;
+    const hasChanges = edits && Object.keys(edits).length > 0;
+    console.log('hasUnsavedChanges check:', { postId, edits, hasChanges });
+    return hasChanges;
   };
 
   return (
@@ -515,491 +517,491 @@ export const ContentGenerator = () => {
                   </div>
                 ) : posts.length > 0 ? (
                   <div className="space-y-4">
-                     {posts.map((post) => {
-                       console.log('Rendering post:', { ID: post.ID, sourceHeadline: post.sourceHeadline });
-                       if (!post.ID) {
-                         console.error('Post missing ID:', post);
-                         return null;
-                       }
-                       return (
-                      <Card key={post.ID} className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex-1">
-                              <h3 className="text-lg font-semibold text-foreground mb-2">
-                                {post.sourceHeadline || 'No headline'}
-                              </h3>
-                              <Badge className={getStatusColor(post.Status)}>
-                                {post.Status}
-                              </Badge>
+                    {posts.map((post) => {
+                      console.log('Rendering post:', { ID: post.ID, sourceHeadline: post.sourceHeadline });
+                      if (!post.ID) {
+                        console.error('Post missing ID:', post);
+                        return null;
+                      }
+                      return (
+                        <Card key={post.ID} className="hover:shadow-md transition-shadow">
+                          <CardContent className="p-6">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-foreground mb-2">
+                                  {post.sourceHeadline || 'No headline'}
+                                </h3>
+                                <Badge className={getStatusColor(post.Status)}>
+                                  {post.Status}
+                                </Badge>
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {post.Created && (
+                                  <div className="flex items-center space-x-1">
+                                    <Calendar className="w-4 h-4" />
+                                    <span>{new Date(post.Created).toLocaleDateString()}</span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div className="text-sm text-muted-foreground">
-                              {post.Created && (
-                                <div className="flex items-center space-x-1">
-                                  <Calendar className="w-4 h-4" />
-                                  <span>{new Date(post.Created).toLocaleDateString()}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
 
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            {/* Summary */}
-                            <div className="space-y-3">
-                              <div>
-                                <Label className="text-sm font-medium text-muted-foreground">Summary</Label>
-                                <div className="mt-1 p-3 bg-muted/50 rounded-md min-h-[80px]">
-                                  <p className="text-sm text-foreground leading-relaxed">
-                                    {post.sourceSummary || 'No summary provided'}
-                                  </p>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                              {/* Summary */}
+                              <div className="space-y-3">
+                                <div>
+                                  <Label className="text-sm font-medium text-muted-foreground">Summary</Label>
+                                  <div className="mt-1 p-3 bg-muted/50 rounded-md min-h-[80px]">
+                                    <p className="text-sm text-foreground leading-relaxed">
+                                      {post.sourceSummary || 'No summary provided'}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Platforms - Selectable */}
+                                <div>
+                                  <Label className="text-sm font-medium text-muted-foreground">Social Platforms</Label>
+                                  <div className="mt-2 space-y-2">
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
+                                        const isSelected = post.socialChannels && typeof post.socialChannels === 'string' 
+                                          ? post.socialChannels.toLowerCase().includes(platform.toLowerCase())
+                                          : false;
+                                        
+                                        return (
+                                          <div key={platform} className="flex items-center space-x-2 p-2 border rounded hover:bg-accent/50 transition-colors">
+                                            <Checkbox
+                                              id={`${post.ID}-${platform}`}
+                                              checked={isSelected}
+                                              onCheckedChange={(checked) => {
+                                                handlePlatformToggle(post.ID!, platform as Platform, checked as boolean);
+                                              }}
+                                            />
+                                            <Label htmlFor={`${post.ID}-${platform}`} className="text-xs cursor-pointer">
+                                              {config.name}
+                                            </Label>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                    
+                                    {/* Current selection display */}
+                                    <div className="flex flex-wrap gap-1 mt-2">
+                                      {post.socialChannels && typeof post.socialChannels === 'string' && post.socialChannels.trim() ? (
+                                        post.socialChannels.split(',').map((channel, index) => (
+                                          <Badge key={index} variant="outline" className="text-xs">
+                                            {channel.trim()}
+                                          </Badge>
+                                        ))
+                                      ) : (
+                                        <span className="text-xs text-muted-foreground">No platforms selected</span>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
 
-                              {/* Platforms - Selectable */}
-                              <div>
-                                <Label className="text-sm font-medium text-muted-foreground">Social Platforms</Label>
-                                <div className="mt-2 space-y-2">
-                                  <div className="grid grid-cols-2 gap-2">
-                                    {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
-                                      const isSelected = post.socialChannels && typeof post.socialChannels === 'string' 
-                                        ? post.socialChannels.toLowerCase().includes(platform.toLowerCase())
-                                        : false;
+                              {/* Links and Image Options */}
+                              <div className="space-y-3">
+                                <div>
+                                  <Label className="text-sm font-medium text-muted-foreground">Source URL</Label>
+                                  <div className="mt-1">
+                                    {(() => {
+                                      const url = typeof post.sourceURL === 'object' && post.sourceURL?.url 
+                                        ? post.sourceURL.url 
+                                        : typeof post.sourceURL === 'string' 
+                                          ? post.sourceURL 
+                                          : null;
                                       
-                                      return (
-                                        <div key={platform} className="flex items-center space-x-2 p-2 border rounded hover:bg-accent/50 transition-colors">
-                                          <Checkbox
-                                            id={`${post.ID}-${platform}`}
-                                            checked={isSelected}
-                                             onCheckedChange={(checked) => {
-                                               handlePlatformToggle(post.ID!, platform as Platform, checked as boolean);
-                                             }}
-                                          />
-                                          <Label htmlFor={`${post.ID}-${platform}`} className="text-xs cursor-pointer">
-                                            {config.name}
-                                          </Label>
-                                        </div>
+                                      return url ? (
+                                        <a 
+                                          href={url} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center space-x-2 text-primary hover:text-primary-hover text-sm"
+                                        >
+                                          <Link2 className="w-4 h-4" />
+                                          <span className="truncate max-w-xs">
+                                            {url}
+                                          </span>
+                                          <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                      ) : (
+                                        <span className="text-sm text-muted-foreground">No source URL</span>
                                       );
-                                    })}
-                                  </div>
-                                  
-                                  {/* Current selection display */}
-                                  <div className="flex flex-wrap gap-1 mt-2">
-                                    {post.socialChannels && typeof post.socialChannels === 'string' && post.socialChannels.trim() ? (
-                                      post.socialChannels.split(',').map((channel, index) => (
-                                        <Badge key={index} variant="outline" className="text-xs">
-                                          {channel.trim()}
-                                        </Badge>
-                                      ))
-                                    ) : (
-                                      <span className="text-xs text-muted-foreground">No platforms selected</span>
-                                    )}
+                                    })()}
                                   </div>
                                 </div>
-                              </div>
-                            </div>
 
-                            {/* Links and Image Options */}
-                            <div className="space-y-3">
-                              <div>
-                                <Label className="text-sm font-medium text-muted-foreground">Source URL</Label>
-                                <div className="mt-1">
-                                  {(() => {
-                                    const url = typeof post.sourceURL === 'object' && post.sourceURL?.url 
-                                      ? post.sourceURL.url 
-                                      : typeof post.sourceURL === 'string' 
-                                        ? post.sourceURL 
-                                        : null;
-                                    
-                                    return url ? (
-                                      <a 
-                                        href={url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center space-x-2 text-primary hover:text-primary-hover text-sm"
+                                <div>
+                                  <Label className="text-sm font-medium text-muted-foreground">Go to Article Link</Label>
+                                  <div className="mt-1">
+                                    {(() => {
+                                      const url = typeof post.goToArticle === 'object' && post.goToArticle?.url 
+                                        ? post.goToArticle.url 
+                                        : typeof post.goToArticle === 'string' 
+                                          ? post.goToArticle 
+                                          : null;
+                                      
+                                      return url ? (
+                                        <a 
+                                          href={url} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center space-x-2 text-primary hover:text-primary-hover text-sm"
+                                        >
+                                          <Link2 className="w-4 h-4" />
+                                          <span className="truncate max-w-xs">
+                                            {url}
+                                          </span>
+                                          <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                      ) : (
+                                        <span className="text-sm text-muted-foreground">No article link</span>
+                                      );
+                                    })()}
+                                  </div>
+                                </div>
+
+                                {/* Image Options - Selectable */}
+                                <div className="border-t pt-3">
+                                  <Label className="text-sm font-medium text-muted-foreground">Image Requirements</Label>
+                                  <div className="mt-2 space-y-3">
+                                    {/* Needs Image Toggle */}
+                                    <div className="flex items-center space-x-3 p-2 border rounded hover:bg-accent/50 transition-colors">
+                                      <Checkbox
+                                        id={`${post.ID}-needsImage`}
+                                        checked={post.needsImage697 === 'Yes' || post.needsImage697 === 'true' || (typeof post.needsImage697 === 'boolean' && post.needsImage697)}
+                                        onCheckedChange={(checked) => {
+                                          handleImageToggle(post.ID!, checked as boolean);
+                                        }}
+                                      />
+                                      <Label htmlFor={`${post.ID}-needsImage`} className="text-sm cursor-pointer flex items-center space-x-2">
+                                        <ImageIcon className="w-4 h-4" />
+                                        <span>Needs Image</span>
+                                      </Label>
+                                    </div>
+
+                                    {/* Current Image Status */}
+                                    <div className="text-xs text-muted-foreground">
+                                      Current: {post.needsImage697 || 'Not specified'}
+                                    </div>
+
+                                    {/* Image Size Selector */}
+                                    <div>
+                                      <Label className="text-xs font-medium text-muted-foreground">Image Size</Label>
+                                      <Select
+                                        value={post.imageSize || 'square'}
+                                        onValueChange={(value) => {
+                                          handleImageSizeChange(post.ID!, value);
+                                        }}
                                       >
-                                        <Link2 className="w-4 h-4" />
-                                        <span className="truncate max-w-xs">
-                                          {url}
-                                        </span>
-                                        <ExternalLink className="w-3 h-3" />
-                                      </a>
-                                    ) : (
-                                      <span className="text-sm text-muted-foreground">No source URL</span>
-                                    );
-                                  })()}
-                                </div>
-                              </div>
-
-                              <div>
-                                <Label className="text-sm font-medium text-muted-foreground">Go to Article Link</Label>
-                                <div className="mt-1">
-                                  {(() => {
-                                    const url = typeof post.goToArticle === 'object' && post.goToArticle?.url 
-                                      ? post.goToArticle.url 
-                                      : typeof post.goToArticle === 'string' 
-                                        ? post.goToArticle 
-                                        : null;
-                                    
-                                    return url ? (
-                                      <a 
-                                        href={url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center space-x-2 text-primary hover:text-primary-hover text-sm"
-                                      >
-                                        <Link2 className="w-4 h-4" />
-                                        <span className="truncate max-w-xs">
-                                          {url}
-                                        </span>
-                                        <ExternalLink className="w-3 h-3" />
-                                      </a>
-                                    ) : (
-                                      <span className="text-sm text-muted-foreground">No article link</span>
-                                    );
-                                  })()}
-                                </div>
-                              </div>
-
-                              {/* Image Options - Selectable */}
-                              <div className="border-t pt-3">
-                                <Label className="text-sm font-medium text-muted-foreground">Image Requirements</Label>
-                                <div className="mt-2 space-y-3">
-                                  {/* Needs Image Toggle */}
-                                  <div className="flex items-center space-x-3 p-2 border rounded hover:bg-accent/50 transition-colors">
-                                    <Checkbox
-                                      id={`${post.ID}-needsImage`}
-                                      checked={post.needsImage697 === 'Yes' || post.needsImage697 === 'true' || (typeof post.needsImage697 === 'boolean' && post.needsImage697)}
-                                      onCheckedChange={(checked) => {
-                                        handleImageToggle(post.ID!, checked as boolean);
-                                      }}
-                                    />
-                                    <Label htmlFor={`${post.ID}-needsImage`} className="text-sm cursor-pointer flex items-center space-x-2">
-                                      <ImageIcon className="w-4 h-4" />
-                                      <span>Needs Image</span>
-                                    </Label>
+                                        <SelectTrigger className="mt-1 h-8 text-xs">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="square">Square (1:1)</SelectItem>
+                                          <SelectItem value="landscape">Landscape (16:9)</SelectItem>
+                                          <SelectItem value="portrait">Portrait (9:16)</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
                                   </div>
+                                </div>
 
-                                  {/* Current Image Status */}
-                                  <div className="text-xs text-muted-foreground">
-                                    Current: {post.needsImage697 || 'Not specified'}
-                                  </div>
-
-                                  {/* Image Size Selector */}
-                                  <div>
-                                    <Label className="text-xs font-medium text-muted-foreground">Image Size</Label>
-                                    <Select
-                                      value={post.imageSize || 'square'}
-                                      onValueChange={(value) => {
-                                        handleImageSizeChange(post.ID!, value);
-                                      }}
+                                {/* Save Changes Button */}
+                                {hasUnsavedChanges(post.ID!) && (
+                                  <div className="mt-4 pt-3 border-t">
+                                    <Button
+                                      onClick={() => savePostChanges(post.ID!)}
+                                      disabled={savingPosts.has(post.ID!)}
+                                      className="w-full"
+                                      size="sm"
                                     >
-                                      <SelectTrigger className="mt-1 h-8 text-xs">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="square">Square (1:1)</SelectItem>
-                                        <SelectItem value="landscape">Landscape (16:9)</SelectItem>
-                                        <SelectItem value="portrait">Portrait (9:16)</SelectItem>
-                                      </SelectContent>
-                                    </Select>
+                                      {savingPosts.has(post.ID!) ? (
+                                        <>
+                                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                          Saving Changes...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Check className="w-4 h-4 mr-2" />
+                                          Save Changes to Airtable
+                                        </>
+                                      )}
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Generated Content Section */}
+                            {(post.twitterCopy || post.linkedinCopy || post.instagramCopy || post.facebookCopy || post.blogCopy || post.imagePrompt || post.postImage) && (
+                              <div className="mt-6 border-t pt-6">
+                                <div className="flex items-center space-x-2 mb-4">
+                                  <div className="p-2 rounded-lg bg-success-light">
+                                    <Sparkles className="w-5 h-5 text-success" />
+                                  </div>
+                                  <h4 className="text-lg font-semibold">Generated Content</h4>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                  {/* Platform Posts */}
+                                  <div className="space-y-4">
+                                    {post.twitterCopy && (
+                                      <div className="p-4 border rounded-lg bg-accent/30">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <div className="flex items-center space-x-2">
+                                            <span className="text-lg">{getPlatformIcon('twitter')}</span>
+                                            <Label className="font-medium">Twitter</Label>
+                                            <Badge variant="outline" className="text-xs">
+                                              {getCharacterCount(post.twitterCopy, 'twitter').count}/{getCharacterCount(post.twitterCopy, 'twitter').max}
+                                            </Badge>
+                                          </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => copyToClipboard(post.twitterCopy, `${post.ID}-twitter`)}
+                                          >
+                                            {copiedItems.has(`${post.ID}-twitter`) ? (
+                                              <Check className="w-4 h-4" />
+                                            ) : (
+                                              <Copy className="w-4 h-4" />
+                                            )}
+                                          </Button>
+                                        </div>
+                                        <div className="text-sm bg-background/50 p-3 rounded border">
+                                          {post.twitterCopy}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {post.linkedinCopy && (
+                                      <div className="p-4 border rounded-lg bg-accent/30">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <div className="flex items-center space-x-2">
+                                            <span className="text-lg">{getPlatformIcon('linkedin')}</span>
+                                            <Label className="font-medium">LinkedIn</Label>
+                                            <Badge variant="outline" className="text-xs">
+                                              {getCharacterCount(post.linkedinCopy, 'linkedin').count}/{getCharacterCount(post.linkedinCopy, 'linkedin').max}
+                                            </Badge>
+                                          </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => copyToClipboard(post.linkedinCopy, `${post.ID}-linkedin`)}
+                                          >
+                                            {copiedItems.has(`${post.ID}-linkedin`) ? (
+                                              <Check className="w-4 h-4" />
+                                            ) : (
+                                              <Copy className="w-4 h-4" />
+                                            )}
+                                          </Button>
+                                        </div>
+                                        <div className="text-sm bg-background/50 p-3 rounded border">
+                                          {post.linkedinCopy}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {post.instagramCopy && (
+                                      <div className="p-4 border rounded-lg bg-accent/30">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <div className="flex items-center space-x-2">
+                                            <span className="text-lg">{getPlatformIcon('instagram')}</span>
+                                            <Label className="font-medium">Instagram</Label>
+                                            <Badge variant="outline" className="text-xs">
+                                              {getCharacterCount(post.instagramCopy, 'instagram').count}/{getCharacterCount(post.instagramCopy, 'instagram').max}
+                                            </Badge>
+                                          </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => copyToClipboard(post.instagramCopy, `${post.ID}-instagram`)}
+                                          >
+                                            {copiedItems.has(`${post.ID}-instagram`) ? (
+                                              <Check className="w-4 h-4" />
+                                            ) : (
+                                              <Copy className="w-4 h-4" />
+                                            )}
+                                          </Button>
+                                        </div>
+                                        <div className="text-sm bg-background/50 p-3 rounded border">
+                                          {post.instagramCopy}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {post.facebookCopy && (
+                                      <div className="p-4 border rounded-lg bg-accent/30">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <div className="flex items-center space-x-2">
+                                            <span className="text-lg">{getPlatformIcon('facebook')}</span>
+                                            <Label className="font-medium">Facebook</Label>
+                                            <Badge variant="outline" className="text-xs">
+                                              {getCharacterCount(post.facebookCopy, 'facebook').count}/{getCharacterCount(post.facebookCopy, 'facebook').max}
+                                            </Badge>
+                                          </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => copyToClipboard(post.facebookCopy, `${post.ID}-facebook`)}
+                                          >
+                                            {copiedItems.has(`${post.ID}-facebook`) ? (
+                                              <Check className="w-4 h-4" />
+                                            ) : (
+                                              <Copy className="w-4 h-4" />
+                                            )}
+                                          </Button>
+                                        </div>
+                                        <div className="text-sm bg-background/50 p-3 rounded border">
+                                          {post.facebookCopy}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {post.blogCopy && (
+                                      <div className="p-4 border rounded-lg bg-accent/30">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <div className="flex items-center space-x-2">
+                                            <span className="text-lg">{getPlatformIcon('blog')}</span>
+                                            <Label className="font-medium">Blog</Label>
+                                            <Badge variant="outline" className="text-xs">
+                                              {getCharacterCount(post.blogCopy, 'blog').count}/{getCharacterCount(post.blogCopy, 'blog').max}
+                                            </Badge>
+                                          </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => copyToClipboard(post.blogCopy, `${post.ID}-blog`)}
+                                          >
+                                            {copiedItems.has(`${post.ID}-blog`) ? (
+                                              <Check className="w-4 h-4" />
+                                            ) : (
+                                              <Copy className="w-4 h-4" />
+                                            )}
+                                          </Button>
+                                        </div>
+                                        <div className="text-sm bg-background/50 p-3 rounded border max-h-40 overflow-y-auto">
+                                          {post.blogCopy}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Image Content */}
+                                  <div className="space-y-4">
+                                    {post.imagePrompt && (
+                                      <div className="p-4 border rounded-lg bg-primary-light">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <div className="flex items-center space-x-2">
+                                            <ImageIcon className="w-5 h-5 text-primary" />
+                                            <Label className="font-medium">Image Prompt</Label>
+                                          </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => copyToClipboard(post.imagePrompt, `${post.ID}-imagePrompt`)}
+                                          >
+                                            {copiedItems.has(`${post.ID}-imagePrompt`) ? (
+                                              <Check className="w-4 h-4" />
+                                            ) : (
+                                              <Copy className="w-4 h-4" />
+                                            )}
+                                          </Button>
+                                        </div>
+                                        <div className="text-sm bg-background/50 p-3 rounded border">
+                                          {post.imagePrompt}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {post.postImage && (
+                                      <div className="p-4 border rounded-lg bg-secondary">
+                                        <div className="flex items-center space-x-2 mb-3">
+                                          <ImageIcon className="w-5 h-5 text-secondary-foreground" />
+                                          <Label className="font-medium">Generated Image</Label>
+                                        </div>
+                                        {(() => {
+                                          // Handle Airtable attachment object or plain URL string
+                                          const imageUrl = typeof post.postImage === 'object' && post.postImage?.url 
+                                            ? post.postImage.url 
+                                            : typeof post.postImage === 'string' 
+                                              ? post.postImage 
+                                              : null;
+                                          
+                                          const imageData = typeof post.postImage === 'object' ? post.postImage : null;
+                                          
+                                          if (imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('data:'))) {
+                                            return (
+                                              <div className="space-y-2">
+                                                <img 
+                                                  src={imageUrl} 
+                                                  alt={imageData?.filename || "Generated post image"}
+                                                  className="w-full max-w-sm rounded-lg border shadow-sm"
+                                                  onError={(e) => {
+                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                  }}
+                                                />
+                                                {imageData && (
+                                                  <div className="text-xs text-muted-foreground space-y-1">
+                                                    {imageData.filename && <div>📁 {imageData.filename}</div>}
+                                                    {imageData.width && imageData.height && (
+                                                      <div>📐 {imageData.width} × {imageData.height}px</div>
+                                                    )}
+                                                    {imageData.size && (
+                                                      <div>💾 {(imageData.size / 1024).toFixed(1)}KB</div>
+                                                    )}
+                                                  </div>
+                                                )}
+                                                <Button
+                                                  size="sm"
+                                                  variant="outline"
+                                                  onClick={() => copyToClipboard(imageUrl, `${post.ID}-postImage`)}
+                                                  className="w-full"
+                                                >
+                                                  {copiedItems.has(`${post.ID}-postImage`) ? (
+                                                    <>
+                                                      <Check className="w-4 h-4 mr-2" />
+                                                      Image URL Copied
+                                                    </>
+                                                  ) : (
+                                                    <>
+                                                      <Copy className="w-4 h-4 mr-2" />
+                                                      Copy Image URL
+                                                    </>
+                                                  )}
+                                                </Button>
+                                              </div>
+                                            );
+                                          } else {
+                                            // Fallback for non-URL content
+                                            const displayText = imageUrl || JSON.stringify(post.postImage, null, 2);
+                                            return (
+                                              <div className="text-sm bg-background/50 p-3 rounded border">
+                                                {displayText}
+                                              </div>
+                                            );
+                                          }
+                                        })()}
+                                      </div>
+                                    )}
+
+                                    {/* Empty State for Image Section */}
+                                    {!post.imagePrompt && !post.postImage && (
+                                      <div className="p-4 border-2 border-dashed border-muted rounded-lg text-center">
+                                        <ImageIcon className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                                        <p className="text-sm text-muted-foreground">No image content generated</p>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </div>
-                              </div>
-
-                              {/* Save Changes Button */}
-                              {hasUnsavedChanges(post.ID!) && (
-                                <div className="mt-4 pt-3 border-t">
-                                  <Button
-                                    onClick={() => savePostChanges(post.ID!)}
-                                    disabled={savingPosts.has(post.ID!)}
-                                    className="w-full"
-                                    size="sm"
-                                  >
-                                    {savingPosts.has(post.ID!) ? (
-                                      <>
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Saving Changes...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Check className="w-4 h-4 mr-2" />
-                                        Save Changes to Airtable
-                                      </>
-                                    )}
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-
-                          {/* Generated Content Section */}
-                          {(post.twitterCopy || post.linkedinCopy || post.instagramCopy || post.facebookCopy || post.blogCopy || post.imagePrompt || post.postImage) && (
-                            <div className="mt-6 border-t pt-6">
-                              <div className="flex items-center space-x-2 mb-4">
-                                <div className="p-2 rounded-lg bg-success-light">
-                                  <Sparkles className="w-5 h-5 text-success" />
-                                </div>
-                                <h4 className="text-lg font-semibold">Generated Content</h4>
-                              </div>
-
-                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                {/* Platform Posts */}
-                                <div className="space-y-4">
-                                  {post.twitterCopy && (
-                                    <div className="p-4 border rounded-lg bg-accent/30">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-lg">{getPlatformIcon('twitter')}</span>
-                                          <Label className="font-medium">Twitter</Label>
-                                          <Badge variant="outline" className="text-xs">
-                                            {getCharacterCount(post.twitterCopy, 'twitter').count}/{getCharacterCount(post.twitterCopy, 'twitter').max}
-                                          </Badge>
-                                        </div>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => copyToClipboard(post.twitterCopy, `${post.ID}-twitter`)}
-                                        >
-                                          {copiedItems.has(`${post.ID}-twitter`) ? (
-                                            <Check className="w-4 h-4" />
-                                          ) : (
-                                            <Copy className="w-4 h-4" />
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <div className="text-sm bg-background/50 p-3 rounded border">
-                                        {post.twitterCopy}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {post.linkedinCopy && (
-                                    <div className="p-4 border rounded-lg bg-accent/30">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-lg">{getPlatformIcon('linkedin')}</span>
-                                          <Label className="font-medium">LinkedIn</Label>
-                                          <Badge variant="outline" className="text-xs">
-                                            {getCharacterCount(post.linkedinCopy, 'linkedin').count}/{getCharacterCount(post.linkedinCopy, 'linkedin').max}
-                                          </Badge>
-                                        </div>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => copyToClipboard(post.linkedinCopy, `${post.ID}-linkedin`)}
-                                        >
-                                          {copiedItems.has(`${post.ID}-linkedin`) ? (
-                                            <Check className="w-4 h-4" />
-                                          ) : (
-                                            <Copy className="w-4 h-4" />
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <div className="text-sm bg-background/50 p-3 rounded border">
-                                        {post.linkedinCopy}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {post.instagramCopy && (
-                                    <div className="p-4 border rounded-lg bg-accent/30">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-lg">{getPlatformIcon('instagram')}</span>
-                                          <Label className="font-medium">Instagram</Label>
-                                          <Badge variant="outline" className="text-xs">
-                                            {getCharacterCount(post.instagramCopy, 'instagram').count}/{getCharacterCount(post.instagramCopy, 'instagram').max}
-                                          </Badge>
-                                        </div>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => copyToClipboard(post.instagramCopy, `${post.ID}-instagram`)}
-                                        >
-                                          {copiedItems.has(`${post.ID}-instagram`) ? (
-                                            <Check className="w-4 h-4" />
-                                          ) : (
-                                            <Copy className="w-4 h-4" />
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <div className="text-sm bg-background/50 p-3 rounded border">
-                                        {post.instagramCopy}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {post.facebookCopy && (
-                                    <div className="p-4 border rounded-lg bg-accent/30">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-lg">{getPlatformIcon('facebook')}</span>
-                                          <Label className="font-medium">Facebook</Label>
-                                          <Badge variant="outline" className="text-xs">
-                                            {getCharacterCount(post.facebookCopy, 'facebook').count}/{getCharacterCount(post.facebookCopy, 'facebook').max}
-                                          </Badge>
-                                        </div>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => copyToClipboard(post.facebookCopy, `${post.ID}-facebook`)}
-                                        >
-                                          {copiedItems.has(`${post.ID}-facebook`) ? (
-                                            <Check className="w-4 h-4" />
-                                          ) : (
-                                            <Copy className="w-4 h-4" />
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <div className="text-sm bg-background/50 p-3 rounded border">
-                                        {post.facebookCopy}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {post.blogCopy && (
-                                    <div className="p-4 border rounded-lg bg-accent/30">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-lg">{getPlatformIcon('blog')}</span>
-                                          <Label className="font-medium">Blog</Label>
-                                          <Badge variant="outline" className="text-xs">
-                                            {getCharacterCount(post.blogCopy, 'blog').count}/{getCharacterCount(post.blogCopy, 'blog').max}
-                                          </Badge>
-                                        </div>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => copyToClipboard(post.blogCopy, `${post.ID}-blog`)}
-                                        >
-                                          {copiedItems.has(`${post.ID}-blog`) ? (
-                                            <Check className="w-4 h-4" />
-                                          ) : (
-                                            <Copy className="w-4 h-4" />
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <div className="text-sm bg-background/50 p-3 rounded border max-h-40 overflow-y-auto">
-                                        {post.blogCopy}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* Image Content */}
-                                <div className="space-y-4">
-                                  {post.imagePrompt && (
-                                    <div className="p-4 border rounded-lg bg-primary-light">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center space-x-2">
-                                          <ImageIcon className="w-5 h-5 text-primary" />
-                                          <Label className="font-medium">Image Prompt</Label>
-                                        </div>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => copyToClipboard(post.imagePrompt, `${post.ID}-imagePrompt`)}
-                                        >
-                                          {copiedItems.has(`${post.ID}-imagePrompt`) ? (
-                                            <Check className="w-4 h-4" />
-                                          ) : (
-                                            <Copy className="w-4 h-4" />
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <div className="text-sm bg-background/50 p-3 rounded border">
-                                        {post.imagePrompt}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {post.postImage && (
-                                    <div className="p-4 border rounded-lg bg-secondary">
-                                      <div className="flex items-center space-x-2 mb-3">
-                                        <ImageIcon className="w-5 h-5 text-secondary-foreground" />
-                                        <Label className="font-medium">Generated Image</Label>
-                                      </div>
-                                      {(() => {
-                                        // Handle Airtable attachment object or plain URL string
-                                        const imageUrl = typeof post.postImage === 'object' && post.postImage?.url 
-                                          ? post.postImage.url 
-                                          : typeof post.postImage === 'string' 
-                                            ? post.postImage 
-                                            : null;
-                                        
-                                        const imageData = typeof post.postImage === 'object' ? post.postImage : null;
-                                        
-                                        if (imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('data:'))) {
-                                          return (
-                                            <div className="space-y-2">
-                                              <img 
-                                                src={imageUrl} 
-                                                alt={imageData?.filename || "Generated post image"}
-                                                className="w-full max-w-sm rounded-lg border shadow-sm"
-                                                onError={(e) => {
-                                                  (e.target as HTMLImageElement).style.display = 'none';
-                                                }}
-                                              />
-                                              {imageData && (
-                                                <div className="text-xs text-muted-foreground space-y-1">
-                                                  {imageData.filename && <div>📁 {imageData.filename}</div>}
-                                                  {imageData.width && imageData.height && (
-                                                    <div>📐 {imageData.width} × {imageData.height}px</div>
-                                                  )}
-                                                  {imageData.size && (
-                                                    <div>💾 {(imageData.size / 1024).toFixed(1)}KB</div>
-                                                  )}
-                                                </div>
-                                              )}
-                                              <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => copyToClipboard(imageUrl, `${post.ID}-postImage`)}
-                                                className="w-full"
-                                              >
-                                                {copiedItems.has(`${post.ID}-postImage`) ? (
-                                                  <>
-                                                    <Check className="w-4 h-4 mr-2" />
-                                                    Image URL Copied
-                                                  </>
-                                                ) : (
-                                                  <>
-                                                    <Copy className="w-4 h-4 mr-2" />
-                                                    Copy Image URL
-                                                  </>
-                                                )}
-                                              </Button>
-                                            </div>
-                                          );
-                                        } else {
-                                          // Fallback for non-URL content
-                                          const displayText = imageUrl || JSON.stringify(post.postImage, null, 2);
-                                          return (
-                                            <div className="text-sm bg-background/50 p-3 rounded border">
-                                              {displayText}
-                                            </div>
-                                          );
-                                        }
-                                      })()}
-                                    </div>
-                                  )}
-
-                                  {/* Empty State for Image Section */}
-                                  {!post.imagePrompt && !post.postImage && (
-                                    <div className="p-4 border-2 border-dashed border-muted rounded-lg text-center">
-                                      <ImageIcon className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                                      <p className="text-sm text-muted-foreground">No image content generated</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                         </CardContent>
-                       </Card>
-                        );
-                      })}
-                   </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
                 ) : (
                   <div className="text-center py-12">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
