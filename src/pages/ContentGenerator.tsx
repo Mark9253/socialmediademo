@@ -557,36 +557,55 @@ export const ContentGenerator = () => {
                                   </div>
                                 </div>
 
-                                {/* Platforms - Selectable */}
-                                <div>
-                                  <Label className="text-sm font-medium text-muted-foreground">Social Platforms</Label>
-                                  <div className="mt-2 space-y-2">
-                                     <div className="grid grid-cols-2 gap-2">
-                                       {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
+                                 {/* Platforms - Multi-Select Dropdown */}
+                                 <div>
+                                   <Label className="text-sm font-medium text-muted-foreground">Social Platforms</Label>
+                                   <div className="mt-2">
+                                     <Select
+                                       value=""
+                                       onValueChange={(platform) => {
                                          // Get current value, taking edits into account
                                          const edits = editingPosts.get(post.ID!);
                                          const currentChannels = edits?.socialChannels || post.socialChannels;
-                                         const isSelected = currentChannels && typeof currentChannels === 'string' 
-                                           ? currentChannels.toLowerCase().includes(platform.toLowerCase())
-                                           : false;
+                                         const currentPlatforms = currentChannels && typeof currentChannels === 'string' 
+                                           ? currentChannels.split(',').map(p => p.trim().toLowerCase())
+                                           : [];
                                          
-                                         return (
-                                           <div key={platform} className="flex items-center space-x-2 p-2 border rounded hover:bg-accent/50 transition-colors">
-                                             <Checkbox
-                                               id={`${post.ID}-${platform}`}
-                                               checked={isSelected}
-                                               onCheckedChange={(checked) => {
-                                                 handlePlatformToggle(post.ID!, platform as Platform, checked as boolean);
-                                               }}
-                                             />
-                                             <Label htmlFor={`${post.ID}-${platform}`} className="text-xs cursor-pointer">
-                                               {config.name}
-                                             </Label>
-                                           </div>
-                                         );
-                                       })}
-                                     </div>
-                                    
+                                         const isSelected = currentPlatforms.includes(platform.toLowerCase());
+                                         handlePlatformToggle(post.ID!, platform as Platform, !isSelected);
+                                       }}
+                                     >
+                                       <SelectTrigger className="h-9 bg-background border z-50">
+                                         <SelectValue placeholder="Select platforms..." />
+                                       </SelectTrigger>
+                                       <SelectContent className="z-50 bg-background border shadow-lg">
+                                         {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
+                                           // Get current value, taking edits into account
+                                           const edits = editingPosts.get(post.ID!);
+                                           const currentChannels = edits?.socialChannels || post.socialChannels;
+                                           const isSelected = currentChannels && typeof currentChannels === 'string' 
+                                             ? currentChannels.toLowerCase().includes(platform.toLowerCase())
+                                             : false;
+                                           
+                                           return (
+                                             <SelectItem 
+                                               key={platform} 
+                                               value={platform}
+                                               className="cursor-pointer hover:bg-accent"
+                                             >
+                                               <div className="flex items-center space-x-2 w-full">
+                                                 <Checkbox
+                                                   checked={isSelected}
+                                                   className="pointer-events-none"
+                                                 />
+                                                 <span>{config.name}</span>
+                                               </div>
+                                             </SelectItem>
+                                           );
+                                         })}
+                                       </SelectContent>
+                                     </Select>
+                                     
                                      {/* Current selection display */}
                                      <div className="flex flex-wrap gap-1 mt-2">
                                        {(() => {
@@ -595,8 +614,15 @@ export const ContentGenerator = () => {
                                          
                                          return currentChannels && typeof currentChannels === 'string' && currentChannels.trim() ? (
                                            currentChannels.split(',').map((channel, index) => (
-                                             <Badge key={index} variant="outline" className="text-xs">
-                                               {channel.trim()}
+                                             <Badge 
+                                               key={index} 
+                                               variant="outline" 
+                                               className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+                                               onClick={() => {
+                                                 handlePlatformToggle(post.ID!, channel.trim() as Platform, false);
+                                               }}
+                                             >
+                                               {channel.trim()} ×
                                              </Badge>
                                            ))
                                          ) : (
@@ -604,8 +630,8 @@ export const ContentGenerator = () => {
                                          );
                                        })()}
                                      </div>
-                                  </div>
-                                </div>
+                                   </div>
+                                 </div>
                               </div>
 
                               {/* Links and Image Options */}
