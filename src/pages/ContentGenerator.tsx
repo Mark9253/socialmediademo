@@ -394,24 +394,51 @@ export const ContentGenerator = () => {
                                 </div>
                               </div>
 
-                              {/* Platforms */}
+                              {/* Platforms - Selectable */}
                               <div>
-                                <Label className="text-sm font-medium text-muted-foreground">Platforms</Label>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                  {post.socialChannels && typeof post.socialChannels === 'string' && post.socialChannels.trim() ? (
-                                    post.socialChannels.split(',').map((channel, index) => (
-                                      <Badge key={index} variant="outline" className="text-xs">
-                                        {channel.trim()}
-                                      </Badge>
-                                    ))
-                                  ) : (
-                                    <span className="text-sm text-muted-foreground">No platforms specified</span>
-                                  )}
+                                <Label className="text-sm font-medium text-muted-foreground">Social Platforms</Label>
+                                <div className="mt-2 space-y-2">
+                                  <div className="grid grid-cols-2 gap-2">
+                                    {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
+                                      const isSelected = post.socialChannels && typeof post.socialChannels === 'string' 
+                                        ? post.socialChannels.toLowerCase().includes(platform.toLowerCase())
+                                        : false;
+                                      
+                                      return (
+                                        <div key={platform} className="flex items-center space-x-2 p-2 border rounded hover:bg-accent/50 transition-colors">
+                                          <Checkbox
+                                            id={`${post.ID}-${platform}`}
+                                            checked={isSelected}
+                                            onCheckedChange={(checked) => {
+                                              // TODO: Add update functionality
+                                              console.log(`Toggle ${platform} for post ${post.ID}:`, checked);
+                                            }}
+                                          />
+                                          <Label htmlFor={`${post.ID}-${platform}`} className="text-xs cursor-pointer">
+                                            {config.name}
+                                          </Label>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                  
+                                  {/* Current selection display */}
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {post.socialChannels && typeof post.socialChannels === 'string' && post.socialChannels.trim() ? (
+                                      post.socialChannels.split(',').map((channel, index) => (
+                                        <Badge key={index} variant="outline" className="text-xs">
+                                          {channel.trim()}
+                                        </Badge>
+                                      ))
+                                    ) : (
+                                      <span className="text-xs text-muted-foreground">No platforms selected</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
 
-                            {/* Links */}
+                            {/* Links and Image Options */}
                             <div className="space-y-3">
                               <div>
                                 <Label className="text-sm font-medium text-muted-foreground">Source URL</Label>
@@ -454,6 +481,54 @@ export const ContentGenerator = () => {
                                   ) : (
                                     <span className="text-sm text-muted-foreground">No article link</span>
                                   )}
+                                </div>
+                              </div>
+
+                              {/* Image Options - Selectable */}
+                              <div className="border-t pt-3">
+                                <Label className="text-sm font-medium text-muted-foreground">Image Requirements</Label>
+                                <div className="mt-2 space-y-3">
+                                  {/* Needs Image Toggle */}
+                                  <div className="flex items-center space-x-3 p-2 border rounded hover:bg-accent/50 transition-colors">
+                                    <Checkbox
+                                      id={`${post.ID}-needsImage`}
+                                      checked={post.needsImage697 === 'Yes' || post.needsImage697 === 'true' || (typeof post.needsImage697 === 'boolean' && post.needsImage697)}
+                                      onCheckedChange={(checked) => {
+                                        // TODO: Add update functionality
+                                        console.log(`Toggle needsImage for post ${post.ID}:`, checked);
+                                      }}
+                                    />
+                                    <Label htmlFor={`${post.ID}-needsImage`} className="text-sm cursor-pointer flex items-center space-x-2">
+                                      <ImageIcon className="w-4 h-4" />
+                                      <span>Needs Image</span>
+                                    </Label>
+                                  </div>
+
+                                  {/* Current Image Status */}
+                                  <div className="text-xs text-muted-foreground">
+                                    Current: {post.needsImage697 || 'Not specified'}
+                                  </div>
+
+                                  {/* Image Size Selector */}
+                                  <div>
+                                    <Label className="text-xs font-medium text-muted-foreground">Image Size</Label>
+                                    <Select
+                                      value={post.imageSize || 'square'}
+                                      onValueChange={(value) => {
+                                        // TODO: Add update functionality
+                                        console.log(`Change imageSize for post ${post.ID}:`, value);
+                                      }}
+                                    >
+                                      <SelectTrigger className="mt-1 h-8 text-xs">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="square">Square (1:1)</SelectItem>
+                                        <SelectItem value="landscape">Landscape (16:9)</SelectItem>
+                                        <SelectItem value="portrait">Portrait (9:16)</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
                                 </div>
                               </div>
                             </div>
