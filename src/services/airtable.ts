@@ -10,7 +10,7 @@ export const fetchSocialPosts = async (): Promise<SocialPost[]> => {
     const data = await response.json();
     
     return data.records.map((record: any) => ({
-      id: record.id,
+      ID: record.id, // Airtable record ID
       ...record.fields
     }));
   } catch (error) {
@@ -19,7 +19,7 @@ export const fetchSocialPosts = async (): Promise<SocialPost[]> => {
   }
 };
 
-export const createSocialPost = async (postData: Omit<SocialPost, 'id'>): Promise<SocialPost> => {
+export const createSocialPost = async (postData: Omit<SocialPost, 'ID'>): Promise<SocialPost> => {
   try {
     const response = await fetch(`${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.socialPosts}`, {
       method: 'POST',
@@ -31,7 +31,7 @@ export const createSocialPost = async (postData: Omit<SocialPost, 'id'>): Promis
     const data = await response.json();
     
     return {
-      id: data.id,
+      ID: data.id,
       ...data.fields
     };
   } catch (error) {
@@ -52,7 +52,7 @@ export const updateSocialPost = async (id: string, updates: Partial<SocialPost>)
     const data = await response.json();
     
     return {
-      id: data.id,
+      ID: data.id,
       ...data.fields
     };
   } catch (error) {

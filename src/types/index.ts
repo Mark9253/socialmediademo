@@ -1,11 +1,11 @@
 export interface SocialPost {
-  id?: string;
+  ID?: string; // Airtable record ID
   sourceHeadline: string;
   sourceSummary: string;
   goToArticle: string;
   sourceURL: string;
   socialChannels: string;
-  needsImage: string;
+  needsImage697: string; // This appears to be your needsImage field
   imageSize: string;
   twitterCopy: string;
   linkedinCopy: string;
@@ -14,9 +14,9 @@ export interface SocialPost {
   blogCopy: string;
   imagePrompt: string;
   postImage: string;
-  status: string;
-  datePosted?: number;
-  created?: string;
+  Status: string; // Note: Capital S to match your Airtable field
+  datePosted?: string; // Changed to string to match Airtable format
+  Created?: string; // Airtable auto-generated creation date
 }
 
 export interface BrandGuideline {

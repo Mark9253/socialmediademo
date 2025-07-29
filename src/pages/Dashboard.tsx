@@ -38,9 +38,9 @@ export const Dashboard = () => {
 
   const stats = {
     total: posts.length,
-    published: posts.filter(p => p.status === 'Published').length,
-    scheduled: posts.filter(p => p.status === 'Scheduled').length,
-    draft: posts.filter(p => p.status === 'Draft').length
+    published: posts.filter(p => p.Status === 'Published').length,
+    scheduled: posts.filter(p => p.Status === 'Scheduled').length,
+    draft: posts.filter(p => p.Status === 'Draft').length
   };
 
   const recentPosts = posts.slice(0, 5);
@@ -205,14 +205,14 @@ export const Dashboard = () => {
             ) : recentPosts.length > 0 ? (
               <div className="space-y-4">
                 {recentPosts.map((post) => (
-                  <div key={post.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                  <div key={post.ID} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
                     <div className="flex-1">
                       <h4 className="font-medium text-foreground truncate">
                         {post.sourceHeadline}
                       </h4>
                       <div className="flex items-center space-x-2 mt-1">
-                        <Badge className={getStatusColor(post.status)}>
-                          {post.status}
+                        <Badge className={getStatusColor(post.Status)}>
+                          {post.Status}
                         </Badge>
                         <span className="text-sm text-muted-foreground">
                           {post.socialChannels}
@@ -220,7 +220,7 @@ export const Dashboard = () => {
                       </div>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {post.created && new Date(post.created).toLocaleDateString()}
+                      {post.Created && new Date(post.Created).toLocaleDateString()}
                     </div>
                   </div>
                 ))}
