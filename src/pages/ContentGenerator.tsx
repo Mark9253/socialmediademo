@@ -305,7 +305,7 @@ export const ContentGenerator = () => {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="generate" className="flex items-center space-x-2">
               <Sparkles className="w-4 h-4" />
-              <span>Generate New Content</span>
+              <span>Generate New Post</span>
             </TabsTrigger>
             <TabsTrigger value="existing" className="flex items-center space-x-2">
               <FileText className="w-4 h-4" />
