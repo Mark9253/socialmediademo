@@ -273,7 +273,7 @@ export const ContentGenerator = () => {
 
   const hasUnsavedChanges = (postId: string) => {
     const edits = editingPosts.get(postId);
-    const hasChanges = edits && Object.keys(edits).length > 0;
+    const hasChanges = Boolean(edits && Object.keys(edits).length > 0);
     console.log('hasUnsavedChanges check:', { postId, edits, hasChanges });
     return hasChanges;
   };
@@ -561,41 +561,49 @@ export const ContentGenerator = () => {
                                 <div>
                                   <Label className="text-sm font-medium text-muted-foreground">Social Platforms</Label>
                                   <div className="mt-2 space-y-2">
-                                    <div className="grid grid-cols-2 gap-2">
-                                      {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
-                                        const isSelected = post.socialChannels && typeof post.socialChannels === 'string' 
-                                          ? post.socialChannels.toLowerCase().includes(platform.toLowerCase())
-                                          : false;
-                                        
-                                        return (
-                                          <div key={platform} className="flex items-center space-x-2 p-2 border rounded hover:bg-accent/50 transition-colors">
-                                            <Checkbox
-                                              id={`${post.ID}-${platform}`}
-                                              checked={isSelected}
-                                              onCheckedChange={(checked) => {
-                                                handlePlatformToggle(post.ID!, platform as Platform, checked as boolean);
-                                              }}
-                                            />
-                                            <Label htmlFor={`${post.ID}-${platform}`} className="text-xs cursor-pointer">
-                                              {config.name}
-                                            </Label>
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
+                                     <div className="grid grid-cols-2 gap-2">
+                                       {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
+                                         // Get current value, taking edits into account
+                                         const edits = editingPosts.get(post.ID!);
+                                         const currentChannels = edits?.socialChannels || post.socialChannels;
+                                         const isSelected = currentChannels && typeof currentChannels === 'string' 
+                                           ? currentChannels.toLowerCase().includes(platform.toLowerCase())
+                                           : false;
+                                         
+                                         return (
+                                           <div key={platform} className="flex items-center space-x-2 p-2 border rounded hover:bg-accent/50 transition-colors">
+                                             <Checkbox
+                                               id={`${post.ID}-${platform}`}
+                                               checked={isSelected}
+                                               onCheckedChange={(checked) => {
+                                                 handlePlatformToggle(post.ID!, platform as Platform, checked as boolean);
+                                               }}
+                                             />
+                                             <Label htmlFor={`${post.ID}-${platform}`} className="text-xs cursor-pointer">
+                                               {config.name}
+                                             </Label>
+                                           </div>
+                                         );
+                                       })}
+                                     </div>
                                     
-                                    {/* Current selection display */}
-                                    <div className="flex flex-wrap gap-1 mt-2">
-                                      {post.socialChannels && typeof post.socialChannels === 'string' && post.socialChannels.trim() ? (
-                                        post.socialChannels.split(',').map((channel, index) => (
-                                          <Badge key={index} variant="outline" className="text-xs">
-                                            {channel.trim()}
-                                          </Badge>
-                                        ))
-                                      ) : (
-                                        <span className="text-xs text-muted-foreground">No platforms selected</span>
-                                      )}
-                                    </div>
+                                     {/* Current selection display */}
+                                     <div className="flex flex-wrap gap-1 mt-2">
+                                       {(() => {
+                                         const edits = editingPosts.get(post.ID!);
+                                         const currentChannels = edits?.socialChannels || post.socialChannels;
+                                         
+                                         return currentChannels && typeof currentChannels === 'string' && currentChannels.trim() ? (
+                                           currentChannels.split(',').map((channel, index) => (
+                                             <Badge key={index} variant="outline" className="text-xs">
+                                               {channel.trim()}
+                                             </Badge>
+                                           ))
+                                         ) : (
+                                           <span className="text-xs text-muted-foreground">No platforms selected</span>
+                                         );
+                                       })()}
+                                     </div>
                                   </div>
                                 </div>
                               </div>
@@ -666,45 +674,55 @@ export const ContentGenerator = () => {
                                 <div className="border-t pt-3">
                                   <Label className="text-sm font-medium text-muted-foreground">Image Requirements</Label>
                                   <div className="mt-2 space-y-3">
-                                    {/* Needs Image Toggle */}
-                                    <div className="flex items-center space-x-3 p-2 border rounded hover:bg-accent/50 transition-colors">
-                                      <Checkbox
-                                        id={`${post.ID}-needsImage`}
-                                        checked={post.needsImage697 === 'Yes' || post.needsImage697 === 'true' || (typeof post.needsImage697 === 'boolean' && post.needsImage697)}
-                                        onCheckedChange={(checked) => {
-                                          handleImageToggle(post.ID!, checked as boolean);
-                                        }}
-                                      />
-                                      <Label htmlFor={`${post.ID}-needsImage`} className="text-sm cursor-pointer flex items-center space-x-2">
-                                        <ImageIcon className="w-4 h-4" />
-                                        <span>Needs Image</span>
-                                      </Label>
-                                    </div>
+                                     {/* Needs Image Toggle */}
+                                     <div className="flex items-center space-x-3 p-2 border rounded hover:bg-accent/50 transition-colors">
+                                       <Checkbox
+                                         id={`${post.ID}-needsImage`}
+                                         checked={(() => {
+                                           const edits = editingPosts.get(post.ID!);
+                                           const currentValue = edits?.needsImage697 || post.needsImage697;
+                                           return currentValue === 'Yes' || currentValue === 'true' || (typeof currentValue === 'boolean' && currentValue);
+                                         })()}
+                                         onCheckedChange={(checked) => {
+                                           handleImageToggle(post.ID!, checked as boolean);
+                                         }}
+                                       />
+                                       <Label htmlFor={`${post.ID}-needsImage`} className="text-sm cursor-pointer flex items-center space-x-2">
+                                         <ImageIcon className="w-4 h-4" />
+                                         <span>Needs Image</span>
+                                       </Label>
+                                     </div>
 
-                                    {/* Current Image Status */}
-                                    <div className="text-xs text-muted-foreground">
-                                      Current: {post.needsImage697 || 'Not specified'}
-                                    </div>
+                                     {/* Current Image Status */}
+                                     <div className="text-xs text-muted-foreground">
+                                       Current: {(() => {
+                                         const edits = editingPosts.get(post.ID!);
+                                         return edits?.needsImage697 || post.needsImage697 || 'Not specified';
+                                       })()}
+                                     </div>
 
-                                    {/* Image Size Selector */}
-                                    <div>
-                                      <Label className="text-xs font-medium text-muted-foreground">Image Size</Label>
-                                      <Select
-                                        value={post.imageSize || 'square'}
-                                        onValueChange={(value) => {
-                                          handleImageSizeChange(post.ID!, value);
-                                        }}
-                                      >
-                                        <SelectTrigger className="mt-1 h-8 text-xs">
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="square">Square (1:1)</SelectItem>
-                                          <SelectItem value="landscape">Landscape (16:9)</SelectItem>
-                                          <SelectItem value="portrait">Portrait (9:16)</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
+                                     {/* Image Size Selector */}
+                                     <div>
+                                       <Label className="text-xs font-medium text-muted-foreground">Image Size</Label>
+                                       <Select
+                                         value={(() => {
+                                           const edits = editingPosts.get(post.ID!);
+                                           return edits?.imageSize || post.imageSize || 'square';
+                                         })()}
+                                         onValueChange={(value) => {
+                                           handleImageSizeChange(post.ID!, value);
+                                         }}
+                                       >
+                                         <SelectTrigger className="mt-1 h-8 text-xs">
+                                           <SelectValue />
+                                         </SelectTrigger>
+                                         <SelectContent>
+                                           <SelectItem value="square">Square (1:1)</SelectItem>
+                                           <SelectItem value="landscape">Landscape (16:9)</SelectItem>
+                                           <SelectItem value="portrait">Portrait (9:16)</SelectItem>
+                                         </SelectContent>
+                                       </Select>
+                                     </div>
                                   </div>
                                 </div>
 
