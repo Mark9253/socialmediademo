@@ -13,7 +13,7 @@ export interface SocialPost {
   facebookCopy: string;
   blogCopy: string;
   imagePrompt: string;
-  postImage: string;
+  postImage: string | { id?: string; width?: number; height?: number; url?: string; filename?: string; size?: number; type?: string; thumbnails?: any };
   Status: string; // Note: Capital S to match your Airtable field
   datePosted?: string; // Changed to string to match Airtable format
   Created?: string; // Airtable auto-generated creation date

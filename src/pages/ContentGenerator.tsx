@@ -788,40 +788,68 @@ export const ContentGenerator = () => {
                                         <ImageIcon className="w-5 h-5 text-secondary-foreground" />
                                         <Label className="font-medium">Generated Image</Label>
                                       </div>
-                                      {post.postImage && typeof post.postImage === 'string' && post.postImage.startsWith('http') ? (
-                                        <div className="space-y-2">
-                                          <img 
-                                            src={post.postImage} 
-                                            alt="Generated post image"
-                                            className="w-full max-w-sm rounded-lg border shadow-sm"
-                                            onError={(e) => {
-                                              (e.target as HTMLImageElement).style.display = 'none';
-                                            }}
-                                          />
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => copyToClipboard(post.postImage, `${post.ID}-postImage`)}
-                                            className="w-full"
-                                          >
-                                            {copiedItems.has(`${post.ID}-postImage`) ? (
-                                              <>
-                                                <Check className="w-4 h-4 mr-2" />
-                                                Image URL Copied
-                                              </>
-                                            ) : (
-                                              <>
-                                                <Copy className="w-4 h-4 mr-2" />
-                                                Copy Image URL
-                                              </>
-                                            )}
-                                          </Button>
-                                        </div>
-                                      ) : (
-                                        <div className="text-sm bg-background/50 p-3 rounded border">
-                                          {post.postImage}
-                                        </div>
-                                      )}
+                                      {(() => {
+                                        // Handle Airtable attachment object or plain URL string
+                                        const imageUrl = typeof post.postImage === 'object' && post.postImage?.url 
+                                          ? post.postImage.url 
+                                          : typeof post.postImage === 'string' 
+                                            ? post.postImage 
+                                            : null;
+                                        
+                                        const imageData = typeof post.postImage === 'object' ? post.postImage : null;
+                                        
+                                        if (imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('data:'))) {
+                                          return (
+                                            <div className="space-y-2">
+                                              <img 
+                                                src={imageUrl} 
+                                                alt={imageData?.filename || "Generated post image"}
+                                                className="w-full max-w-sm rounded-lg border shadow-sm"
+                                                onError={(e) => {
+                                                  (e.target as HTMLImageElement).style.display = 'none';
+                                                }}
+                                              />
+                                              {imageData && (
+                                                <div className="text-xs text-muted-foreground space-y-1">
+                                                  {imageData.filename && <div>📁 {imageData.filename}</div>}
+                                                  {imageData.width && imageData.height && (
+                                                    <div>📐 {imageData.width} × {imageData.height}px</div>
+                                                  )}
+                                                  {imageData.size && (
+                                                    <div>💾 {(imageData.size / 1024).toFixed(1)}KB</div>
+                                                  )}
+                                                </div>
+                                              )}
+                                              <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => copyToClipboard(imageUrl, `${post.ID}-postImage`)}
+                                                className="w-full"
+                                              >
+                                                {copiedItems.has(`${post.ID}-postImage`) ? (
+                                                  <>
+                                                    <Check className="w-4 h-4 mr-2" />
+                                                    Image URL Copied
+                                                  </>
+                                                ) : (
+                                                  <>
+                                                    <Copy className="w-4 h-4 mr-2" />
+                                                    Copy Image URL
+                                                  </>
+                                                )}
+                                              </Button>
+                                            </div>
+                                          );
+                                        } else {
+                                          // Fallback for non-URL content
+                                          const displayText = imageUrl || JSON.stringify(post.postImage, null, 2);
+                                          return (
+                                            <div className="text-sm bg-background/50 p-3 rounded border">
+                                              {displayText}
+                                            </div>
+                                          );
+                                        }
+                                      })()}
                                     </div>
                                   )}
 
