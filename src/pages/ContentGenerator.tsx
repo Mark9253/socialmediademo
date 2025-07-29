@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, ExternalLink, Image as ImageIcon, Loader2, FileText, Calendar, Link2, Copy, Check } from 'lucide-react';
 import { ContentGenerationRequest, Platform, PLATFORM_CONFIGS, SocialPost } from '@/types';
 import { triggerContentGeneration } from '@/services/webhooks';
-import { fetchSocialPosts } from '@/services/airtable';
+import { fetchSocialPosts, updateSocialPost } from '@/services/airtable';
 import { useToast } from '@/hooks/use-toast';
 
 export const ContentGenerator = () => {
@@ -30,6 +30,8 @@ export const ContentGenerator = () => {
   const [posts, setPosts] = useState<SocialPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
+  const [editingPosts, setEditingPosts] = useState<Map<string, Partial<SocialPost>>>(new Map());
+  const [savingPosts, setSavingPosts] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -170,6 +172,95 @@ export const ContentGenerator = () => {
       max,
       isOver: count > max
     };
+  };
+
+  // Update post field functions
+  const updatePostField = (postId: string, field: keyof SocialPost, value: any) => {
+    setEditingPosts(prev => {
+      const newMap = new Map(prev);
+      const currentEdits = newMap.get(postId) || {};
+      newMap.set(postId, { ...currentEdits, [field]: value });
+      return newMap;
+    });
+  };
+
+  const handlePlatformToggle = (postId: string, platform: Platform, checked: boolean) => {
+    const post = posts.find(p => p.ID === postId);
+    if (!post) return;
+
+    const currentPlatforms = post.socialChannels && typeof post.socialChannels === 'string' 
+      ? post.socialChannels.split(',').map(p => p.trim().toLowerCase())
+      : [];
+
+    let newPlatforms;
+    if (checked) {
+      newPlatforms = [...currentPlatforms.filter(p => p !== platform.toLowerCase()), platform.toLowerCase()];
+    } else {
+      newPlatforms = currentPlatforms.filter(p => p !== platform.toLowerCase());
+    }
+
+    updatePostField(postId, 'socialChannels', newPlatforms.join(', '));
+  };
+
+  const handleImageToggle = (postId: string, checked: boolean) => {
+    updatePostField(postId, 'needsImage697', checked ? 'Yes' : 'No');
+  };
+
+  const handleImageSizeChange = (postId: string, size: string) => {
+    updatePostField(postId, 'imageSize', size);
+  };
+
+  const savePostChanges = async (postId: string) => {
+    const edits = editingPosts.get(postId);
+    if (!edits || Object.keys(edits).length === 0) {
+      toast({
+        title: "No Changes",
+        description: "No changes to save for this post.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSavingPosts(prev => new Set([...prev, postId]));
+
+    try {
+      const updatedPost = await updateSocialPost(postId, edits);
+      
+      // Update the posts state with the new data
+      setPosts(prev => prev.map(post => 
+        post.ID === postId ? { ...post, ...updatedPost } : post
+      ));
+
+      // Clear the editing state for this post
+      setEditingPosts(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(postId);
+        return newMap;
+      });
+
+      toast({
+        title: "Changes Saved!",
+        description: "Post settings have been updated successfully.",
+      });
+
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Could not save changes. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingPosts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(postId);
+        return newSet;
+      });
+    }
+  };
+
+  const hasUnsavedChanges = (postId: string) => {
+    const edits = editingPosts.get(postId);
+    return edits && Object.keys(edits).length > 0;
   };
 
   return (
@@ -460,10 +551,9 @@ export const ContentGenerator = () => {
                                           <Checkbox
                                             id={`${post.ID}-${platform}`}
                                             checked={isSelected}
-                                            onCheckedChange={(checked) => {
-                                              // TODO: Add update functionality
-                                              console.log(`Toggle ${platform} for post ${post.ID}:`, checked);
-                                            }}
+                                             onCheckedChange={(checked) => {
+                                               handlePlatformToggle(post.ID!, platform as Platform, checked as boolean);
+                                             }}
                                           />
                                           <Label htmlFor={`${post.ID}-${platform}`} className="text-xs cursor-pointer">
                                             {config.name}
@@ -561,8 +651,7 @@ export const ContentGenerator = () => {
                                       id={`${post.ID}-needsImage`}
                                       checked={post.needsImage697 === 'Yes' || post.needsImage697 === 'true' || (typeof post.needsImage697 === 'boolean' && post.needsImage697)}
                                       onCheckedChange={(checked) => {
-                                        // TODO: Add update functionality
-                                        console.log(`Toggle needsImage for post ${post.ID}:`, checked);
+                                        handleImageToggle(post.ID!, checked as boolean);
                                       }}
                                     />
                                     <Label htmlFor={`${post.ID}-needsImage`} className="text-sm cursor-pointer flex items-center space-x-2">
@@ -582,8 +671,7 @@ export const ContentGenerator = () => {
                                     <Select
                                       value={post.imageSize || 'square'}
                                       onValueChange={(value) => {
-                                        // TODO: Add update functionality
-                                        console.log(`Change imageSize for post ${post.ID}:`, value);
+                                        handleImageSizeChange(post.ID!, value);
                                       }}
                                     >
                                       <SelectTrigger className="mt-1 h-8 text-xs">
@@ -598,8 +686,32 @@ export const ContentGenerator = () => {
                                   </div>
                                 </div>
                               </div>
+                              </div>
+
+                              {/* Save Changes Button */}
+                              {hasUnsavedChanges(post.ID!) && (
+                                <div className="mt-4 pt-3 border-t">
+                                  <Button
+                                    onClick={() => savePostChanges(post.ID!)}
+                                    disabled={savingPosts.has(post.ID!)}
+                                    className="w-full"
+                                    size="sm"
+                                  >
+                                    {savingPosts.has(post.ID!) ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        Saving Changes...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Check className="w-4 h-4 mr-2" />
+                                        Save Changes to Airtable
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
                             </div>
-                          </div>
 
                           {/* Generated Content Section */}
                           {(post.twitterCopy || post.linkedinCopy || post.instagramCopy || post.facebookCopy || post.blogCopy || post.imagePrompt || post.postImage) && (
