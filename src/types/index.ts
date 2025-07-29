@@ -2,8 +2,8 @@ export interface SocialPost {
   ID?: string; // Airtable record ID
   sourceHeadline: string;
   sourceSummary: string;
-  goToArticle: string;
-  sourceURL: string;
+  goToArticle: string | { label?: string; url?: string }; // Can be string or object
+  sourceURL: string | { label?: string; url?: string }; // Can be string or object
   socialChannels: string;
   needsImage697: string; // This appears to be your needsImage field
   imageSize: string;

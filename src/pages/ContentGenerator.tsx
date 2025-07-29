@@ -494,44 +494,60 @@ export const ContentGenerator = () => {
                               <div>
                                 <Label className="text-sm font-medium text-muted-foreground">Source URL</Label>
                                 <div className="mt-1">
-                                  {post.sourceURL ? (
-                                    <a 
-                                      href={post.sourceURL} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center space-x-2 text-primary hover:text-primary-hover text-sm"
-                                    >
-                                      <Link2 className="w-4 h-4" />
-                                      <span className="truncate max-w-xs">
-                                        {post.sourceURL}
-                                      </span>
-                                      <ExternalLink className="w-3 h-3" />
-                                    </a>
-                                  ) : (
-                                    <span className="text-sm text-muted-foreground">No source URL</span>
-                                  )}
+                                  {(() => {
+                                    const url = typeof post.sourceURL === 'object' && post.sourceURL?.url 
+                                      ? post.sourceURL.url 
+                                      : typeof post.sourceURL === 'string' 
+                                        ? post.sourceURL 
+                                        : null;
+                                    
+                                    return url ? (
+                                      <a 
+                                        href={url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center space-x-2 text-primary hover:text-primary-hover text-sm"
+                                      >
+                                        <Link2 className="w-4 h-4" />
+                                        <span className="truncate max-w-xs">
+                                          {url}
+                                        </span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    ) : (
+                                      <span className="text-sm text-muted-foreground">No source URL</span>
+                                    );
+                                  })()}
                                 </div>
                               </div>
 
                               <div>
                                 <Label className="text-sm font-medium text-muted-foreground">Go to Article Link</Label>
                                 <div className="mt-1">
-                                  {post.goToArticle ? (
-                                    <a 
-                                      href={post.goToArticle} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center space-x-2 text-primary hover:text-primary-hover text-sm"
-                                    >
-                                      <Link2 className="w-4 h-4" />
-                                      <span className="truncate max-w-xs">
-                                        {post.goToArticle}
-                                      </span>
-                                      <ExternalLink className="w-3 h-3" />
-                                    </a>
-                                  ) : (
-                                    <span className="text-sm text-muted-foreground">No article link</span>
-                                  )}
+                                  {(() => {
+                                    const url = typeof post.goToArticle === 'object' && post.goToArticle?.url 
+                                      ? post.goToArticle.url 
+                                      : typeof post.goToArticle === 'string' 
+                                        ? post.goToArticle 
+                                        : null;
+                                    
+                                    return url ? (
+                                      <a 
+                                        href={url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center space-x-2 text-primary hover:text-primary-hover text-sm"
+                                      >
+                                        <Link2 className="w-4 h-4" />
+                                        <span className="truncate max-w-xs">
+                                          {url}
+                                        </span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    ) : (
+                                      <span className="text-sm text-muted-foreground">No article link</span>
+                                    );
+                                  })()}
                                 </div>
                               </div>
 
