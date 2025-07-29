@@ -174,7 +174,7 @@ export const ContentGenerator = () => {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="max-w-none space-y-8 pr-4 lg:pr-8">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
