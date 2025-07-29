@@ -1,0 +1,85 @@
+export interface SocialPost {
+  id?: string;
+  sourceHeadline: string;
+  sourceSummary: string;
+  goToArticle: string;
+  sourceURL: string;
+  socialChannels: string;
+  needsImage: string;
+  imageSize: string;
+  twitterCopy: string;
+  linkedinCopy: string;
+  instagramCopy: string;
+  facebookCopy: string;
+  blogCopy: string;
+  imagePrompt: string;
+  postImage: string;
+  status: string;
+  datePosted?: number;
+  created?: string;
+}
+
+export interface BrandGuideline {
+  guidelines: string;
+  imageStyle: string;
+  stylePrompt: string;
+  recordId?: string;
+}
+
+export interface WritingPrompt {
+  channel: string;
+  prompt: string;
+  id?: string;
+}
+
+export interface ContentGenerationRequest {
+  sourceHeadline: string;
+  sourceSummary: string;
+  sourceURL: string;
+  goToArticle: string;
+  socialChannels: string[];
+  needsImage: boolean;
+  imageSize: string;
+}
+
+export type Platform = 'twitter' | 'linkedin' | 'instagram' | 'facebook' | 'blog';
+
+export interface PlatformConfig {
+  name: string;
+  color: string;
+  maxChars: number;
+  icon: string;
+}
+
+export const PLATFORM_CONFIGS: Record<Platform, PlatformConfig> = {
+  twitter: {
+    name: 'Twitter',
+    color: 'platform-twitter',
+    maxChars: 280,
+    icon: 'Twitter'
+  },
+  linkedin: {
+    name: 'LinkedIn',
+    color: 'platform-linkedin',
+    maxChars: 3000,
+    icon: 'Linkedin'
+  },
+  instagram: {
+    name: 'Instagram',
+    color: 'platform-instagram',
+    maxChars: 2200,
+    icon: 'Instagram'
+  },
+  facebook: {
+    name: 'Facebook',
+    color: 'platform-facebook',
+    maxChars: 63206,
+    icon: 'Facebook'
+  },
+  blog: {
+    name: 'Blog',
+    color: 'platform-blog',
+    maxChars: 10000,
+    icon: 'FileText'
+  }
+};

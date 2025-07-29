@@ -2,41 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Social Media SaaS Design System - Warm, Modern Aesthetic */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core Colors - Warm Modern Palette */
+    --background: 35 24% 98%;
+    --foreground: 25 30% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 25 30% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 25 30% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Warm Orange */
+    --primary: 15 75% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 15 75% 50%;
+    --primary-light: 15 75% 95%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Warm Coral */
+    --secondary: 350 65% 88%;
+    --secondary-foreground: 25 30% 15%;
+    --secondary-hover: 350 65% 85%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent - Golden Yellow */
+    --accent: 40 85% 85%;
+    --accent-foreground: 25 30% 15%;
+    --accent-hover: 40 85% 80%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Muted - Warm Grays */
+    --muted: 35 15% 92%;
+    --muted-foreground: 25 15% 45%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Success - Warm Green */
+    --success: 85 50% 55%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 85 50% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Warning - Warm Amber */
+    --warning: 25 95% 60%;
+    --warning-foreground: 25 30% 15%;
+    --warning-light: 25 95% 95%;
 
-    --radius: 0.5rem;
+    /* Destructive - Warm Red */
+    --destructive: 5 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-light: 5 75% 95%;
+
+    /* Borders & Inputs */
+    --border: 35 20% 88%;
+    --input: 35 20% 88%;
+    --ring: 15 75% 55%;
+
+    /* Platform Colors */
+    --twitter: 195 100% 50%;
+    --linkedin: 205 100% 50%;
+    --instagram: 315 100% 60%;
+    --facebook: 220 100% 50%;
+    --blog: 260 50% 55%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(25 85% 65%));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
+    --gradient-warm: linear-gradient(135deg, hsl(15 75% 95%), hsl(40 85% 95%));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(15 20% 80% / 0.15);
+    --shadow-card: 0 2px 12px hsl(15 15% 75% / 0.1);
+    --shadow-focus: 0 0 0 3px hsl(var(--primary) / 0.15);
+
+    /* Radius */
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -56,41 +94,70 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Core Colors - Warm Dark Mode */
+    --background: 25 30% 8%;
+    --foreground: 35 24% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 25 25% 12%;
+    --card-foreground: 35 24% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 25 25% 12%;
+    --popover-foreground: 35 24% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Primary - Warm Orange (lighter in dark) */
+    --primary: 15 85% 65%;
+    --primary-foreground: 25 30% 8%;
+    --primary-hover: 15 85% 70%;
+    --primary-light: 15 85% 15%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Dark Coral */
+    --secondary: 350 45% 20%;
+    --secondary-foreground: 35 24% 95%;
+    --secondary-hover: 350 45% 25%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Accent - Dark Golden */
+    --accent: 40 65% 20%;
+    --accent-foreground: 35 24% 95%;
+    --accent-hover: 40 65% 25%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Muted - Warm Dark Grays */
+    --muted: 25 20% 15%;
+    --muted-foreground: 35 15% 60%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status Colors - Dark Mode */
+    --success: 85 50% 50%;
+    --success-foreground: 25 30% 8%;
+    --success-light: 85 50% 15%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --warning: 25 95% 55%;
+    --warning-foreground: 25 30% 8%;
+    --warning-light: 25 95% 15%;
+
+    --destructive: 5 75% 55%;
+    --destructive-foreground: 35 24% 95%;
+    --destructive-light: 5 75% 15%;
+
+    /* Borders & Inputs */
+    --border: 25 20% 20%;
+    --input: 25 20% 20%;
+    --ring: 15 85% 65%;
+
+    /* Platform Colors (adjusted for dark mode) */
+    --twitter: 195 100% 45%;
+    --linkedin: 205 100% 45%;
+    --instagram: 315 100% 55%;
+    --facebook: 220 100% 45%;
+    --blog: 260 50% 50%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(25 85% 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
+    --gradient-warm: linear-gradient(135deg, hsl(15 75% 15%), hsl(40 85% 15%));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 2px 12px hsl(0 0% 0% / 0.2);
+    --shadow-focus: 0 0 0 3px hsl(var(--primary) / 0.25);
   }
 }
 
