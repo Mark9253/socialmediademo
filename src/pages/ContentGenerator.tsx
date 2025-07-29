@@ -301,15 +301,15 @@ export const ContentGenerator = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="generate" className="w-full">
+        <Tabs defaultValue="existing" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="generate" className="flex items-center space-x-2">
+            <TabsTrigger value="existing" className="flex items-center space-x-2">
               <Sparkles className="w-4 h-4" />
               <span>Generate New Post</span>
             </TabsTrigger>
-            <TabsTrigger value="existing" className="flex items-center space-x-2">
+            <TabsTrigger value="generate" className="flex items-center space-x-2">
               <FileText className="w-4 h-4" />
-              <span>Existing Content</span>
+              <span>Create From Source</span>
             </TabsTrigger>
           </TabsList>
 
