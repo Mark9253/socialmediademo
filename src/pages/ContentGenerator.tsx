@@ -202,14 +202,23 @@ export const ContentGenerator = () => {
       return;
     }
 
-    const currentPlatforms = post.socialChannels && typeof post.socialChannels === 'string' 
-      ? post.socialChannels.split(',').map(p => p.trim().toLowerCase())
+    // Get current platforms, checking edits first, then original post data
+    const edits = editingPosts.get(postId);
+    const currentChannels = edits?.socialChannels || post.socialChannels;
+    const currentPlatforms = currentChannels && typeof currentChannels === 'string' 
+      ? currentChannels.split(',').map(p => p.trim().toLowerCase())
       : [];
 
     let newPlatforms;
     if (checked) {
-      newPlatforms = [...currentPlatforms.filter(p => p !== platform.toLowerCase()), platform.toLowerCase()];
+      // Add platform if not already present
+      if (!currentPlatforms.includes(platform.toLowerCase())) {
+        newPlatforms = [...currentPlatforms, platform.toLowerCase()];
+      } else {
+        newPlatforms = currentPlatforms;
+      }
     } else {
+      // Remove platform
       newPlatforms = currentPlatforms.filter(p => p !== platform.toLowerCase());
     }
 
