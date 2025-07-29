@@ -398,7 +398,7 @@ export const ContentGenerator = () => {
                               <div>
                                 <Label className="text-sm font-medium text-muted-foreground">Platforms</Label>
                                 <div className="mt-2 flex flex-wrap gap-2">
-                                  {post.socialChannels ? (
+                                  {post.socialChannels && typeof post.socialChannels === 'string' && post.socialChannels.trim() ? (
                                     post.socialChannels.split(',').map((channel, index) => (
                                       <Badge key={index} variant="outline" className="text-xs">
                                         {channel.trim()}
