@@ -226,7 +226,7 @@ export const ContentGenerator = () => {
   };
 
   const handleImageToggle = (postId: string, checked: boolean) => {
-    updatePostField(postId, 'needsImage697', checked ? 'Yes' : 'No');
+    updatePostField(postId, 'needsImage?', checked ? 'Yes' : 'No');
   };
 
   const handleImageSizeChange = (postId: string, size: string) => {
@@ -718,11 +718,11 @@ export const ContentGenerator = () => {
                                      <div className="flex items-center space-x-3 p-2 border rounded hover:bg-accent/50 transition-colors">
                                        <Checkbox
                                          id={`${post.ID}-needsImage`}
-                                         checked={(() => {
-                                           const edits = editingPosts.get(post.ID!);
-                                           const currentValue = edits?.needsImage697 || post.needsImage697;
-                                           return currentValue === 'Yes' || currentValue === 'true' || (typeof currentValue === 'boolean' && currentValue);
-                                         })()}
+                                          checked={(() => {
+                                            const edits = editingPosts.get(post.ID!);
+                                            const currentValue = edits?.['needsImage?'] || post['needsImage?'];
+                                            return currentValue === 'Yes' || currentValue === 'true' || (typeof currentValue === 'boolean' && currentValue);
+                                          })()}
                                          onCheckedChange={(checked) => {
                                            handleImageToggle(post.ID!, checked as boolean);
                                          }}
@@ -735,10 +735,10 @@ export const ContentGenerator = () => {
 
                                      {/* Current Image Status */}
                                      <div className="text-xs text-muted-foreground">
-                                       Current: {(() => {
-                                         const edits = editingPosts.get(post.ID!);
-                                         return edits?.needsImage697 || post.needsImage697 || 'Not specified';
-                                       })()}
+                                        Current: {(() => {
+                                          const edits = editingPosts.get(post.ID!);
+                                          return edits?.['needsImage?'] || post['needsImage?'] || 'Not specified';
+                                        })()}
                                      </div>
 
                                      {/* Image Size Selector */}

@@ -5,7 +5,7 @@ export interface SocialPost {
   goToArticle: string | { label?: string; url?: string }; // Can be string or object
   sourceURL: string | { label?: string; url?: string }; // Can be string or object
   socialChannels: string;
-  needsImage697: string; // This appears to be your needsImage field
+  'needsImage?': string; // Airtable field with question mark
   imageSize: string;
   twitterCopy: string;
   linkedinCopy: string;
