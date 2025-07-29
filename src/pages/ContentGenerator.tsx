@@ -772,7 +772,7 @@ export const ContentGenerator = () => {
                                         <ImageIcon className="w-5 h-5 text-secondary-foreground" />
                                         <Label className="font-medium">Generated Image</Label>
                                       </div>
-                                      {post.postImage.startsWith('http') ? (
+                                      {post.postImage && typeof post.postImage === 'string' && post.postImage.startsWith('http') ? (
                                         <div className="space-y-2">
                                           <img 
                                             src={post.postImage} 
