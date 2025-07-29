@@ -176,6 +176,11 @@ export const ContentGenerator = () => {
 
   // Update post field functions
   const updatePostField = (postId: string, field: keyof SocialPost, value: any) => {
+    console.log('updatePostField called:', { postId, field, value });
+    if (!postId) {
+      console.error('Missing postId in updatePostField');
+      return;
+    }
     setEditingPosts(prev => {
       const newMap = new Map(prev);
       const currentEdits = newMap.get(postId) || {};
@@ -185,8 +190,16 @@ export const ContentGenerator = () => {
   };
 
   const handlePlatformToggle = (postId: string, platform: Platform, checked: boolean) => {
+    console.log('handlePlatformToggle called:', { postId, platform, checked });
+    if (!postId) {
+      console.error('Missing postId in handlePlatformToggle');
+      return;
+    }
     const post = posts.find(p => p.ID === postId);
-    if (!post) return;
+    if (!post) {
+      console.error('Post not found:', postId);
+      return;
+    }
 
     const currentPlatforms = post.socialChannels && typeof post.socialChannels === 'string' 
       ? post.socialChannels.split(',').map(p => p.trim().toLowerCase())
@@ -502,7 +515,13 @@ export const ContentGenerator = () => {
                   </div>
                 ) : posts.length > 0 ? (
                   <div className="space-y-4">
-                    {posts.map((post) => (
+                     {posts.map((post) => {
+                       console.log('Rendering post:', { ID: post.ID, sourceHeadline: post.sourceHeadline });
+                       if (!post.ID) {
+                         console.error('Post missing ID:', post);
+                         return null;
+                       }
+                       return (
                       <Card key={post.ID} className="hover:shadow-md transition-shadow">
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
@@ -976,10 +995,11 @@ export const ContentGenerator = () => {
                               </div>
                             </div>
                           )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                         </CardContent>
+                       </Card>
+                        );
+                      })}
+                   </div>
                 ) : (
                   <div className="text-center py-12">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
