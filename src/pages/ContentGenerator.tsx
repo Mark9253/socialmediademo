@@ -9,7 +9,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sparkles, ExternalLink, Image as ImageIcon, Loader2, FileText, Calendar, Link2, Copy, Check } from 'lucide-react';
+import { Sparkles, ExternalLink, Image as ImageIcon, Loader2, FileText, Calendar, Link2, Copy, Check, ChevronDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ContentGenerationRequest, Platform, PLATFORM_CONFIGS, SocialPost } from '@/types';
 import { triggerContentGeneration } from '@/services/webhooks';
 import { fetchSocialPosts, updateSocialPost } from '@/services/airtable';
@@ -557,54 +558,58 @@ export const ContentGenerator = () => {
                                   </div>
                                 </div>
 
-                                 {/* Platforms - Multi-Select Dropdown */}
+                                 {/* Platforms - Multi-Select Popover */}
                                  <div>
                                    <Label className="text-sm font-medium text-muted-foreground">Social Platforms</Label>
                                    <div className="mt-2">
-                                     <Select
-                                       value=""
-                                       onValueChange={(platform) => {
-                                         // Get current value, taking edits into account
-                                         const edits = editingPosts.get(post.ID!);
-                                         const currentChannels = edits?.socialChannels || post.socialChannels;
-                                         const currentPlatforms = currentChannels && typeof currentChannels === 'string' 
-                                           ? currentChannels.split(',').map(p => p.trim().toLowerCase())
-                                           : [];
-                                         
-                                         const isSelected = currentPlatforms.includes(platform.toLowerCase());
-                                         handlePlatformToggle(post.ID!, platform as Platform, !isSelected);
-                                       }}
-                                     >
-                                       <SelectTrigger className="h-9 bg-background border z-50">
-                                         <SelectValue placeholder="Select platforms..." />
-                                       </SelectTrigger>
-                                       <SelectContent className="z-50 bg-background border shadow-lg">
-                                         {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
-                                           // Get current value, taking edits into account
-                                           const edits = editingPosts.get(post.ID!);
-                                           const currentChannels = edits?.socialChannels || post.socialChannels;
-                                           const isSelected = currentChannels && typeof currentChannels === 'string' 
-                                             ? currentChannels.toLowerCase().includes(platform.toLowerCase())
-                                             : false;
-                                           
-                                           return (
-                                             <SelectItem 
-                                               key={platform} 
-                                               value={platform}
-                                               className="cursor-pointer hover:bg-accent"
-                                             >
-                                               <div className="flex items-center space-x-2 w-full">
+                                     <Popover>
+                                       <PopoverTrigger asChild>
+                                         <Button 
+                                           variant="outline" 
+                                           className="w-full justify-between h-9 bg-background border"
+                                         >
+                                           <span className="text-sm">
+                                             {(() => {
+                                               const edits = editingPosts.get(post.ID!);
+                                               const currentChannels = edits?.socialChannels || post.socialChannels;
+                                               const count = currentChannels && typeof currentChannels === 'string' && currentChannels.trim() 
+                                                 ? currentChannels.split(',').length 
+                                                 : 0;
+                                               return count > 0 ? `${count} platform${count > 1 ? 's' : ''} selected` : 'Select platforms...';
+                                             })()}
+                                           </span>
+                                           <ChevronDown className="h-4 w-4 opacity-50" />
+                                         </Button>
+                                       </PopoverTrigger>
+                                       <PopoverContent className="w-full p-0 bg-background border shadow-lg z-50" align="start">
+                                         <div className="p-2">
+                                           {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
+                                             // Get current value, taking edits into account
+                                             const edits = editingPosts.get(post.ID!);
+                                             const currentChannels = edits?.socialChannels || post.socialChannels;
+                                             const isSelected = currentChannels && typeof currentChannels === 'string' 
+                                               ? currentChannels.toLowerCase().includes(platform.toLowerCase())
+                                               : false;
+                                             
+                                             return (
+                                               <div 
+                                                 key={platform} 
+                                                 className="flex items-center space-x-2 p-2 hover:bg-accent rounded cursor-pointer"
+                                                 onClick={() => {
+                                                   handlePlatformToggle(post.ID!, platform as Platform, !isSelected);
+                                                 }}
+                                               >
                                                  <Checkbox
                                                    checked={isSelected}
                                                    className="pointer-events-none"
                                                  />
-                                                 <span>{config.name}</span>
+                                                 <span className="text-sm">{config.name}</span>
                                                </div>
-                                             </SelectItem>
-                                           );
-                                         })}
-                                       </SelectContent>
-                                     </Select>
+                                             );
+                                           })}
+                                         </div>
+                                       </PopoverContent>
+                                     </Popover>
                                      
                                      {/* Current selection display */}
                                      <div className="flex flex-wrap gap-1 mt-2">
