@@ -77,6 +77,27 @@ export const PostApproval = () => {
         return newMap;
       });
 
+      // Wait a moment then verify the update actually stuck
+      setTimeout(async () => {
+        try {
+          console.log('Verifying update after 3 seconds...');
+          const allPosts = await fetchSocialPosts();
+          const updatedPost = allPosts.find(p => p.ID === postId);
+          console.log('Post after update:', updatedPost);
+          if (updatedPost && updatedPost.Status !== newStatus) {
+            console.error('WARNING: Status was reverted by Airtable automation!');
+            console.error('Expected:', newStatus, 'Actual:', updatedPost.Status);
+            toast({
+              title: "Status Reverted",
+              description: "The status was changed but then reverted by an Airtable automation. Please check your Airtable automations.",
+              variant: "destructive"
+            });
+          }
+        } catch (error) {
+          console.error('Error verifying update:', error);
+        }
+      }, 3000);
+
       // If status is no longer requiring approval, remove from list
       const needsApproval = newStatus.toLowerCase().includes('needs approval') || 
                            newStatus.toLowerCase().includes('waiting for content');
