@@ -69,7 +69,7 @@ export const ContentIdeas = () => {
   return (
     <Layout>
       {/* Hero Section with Gradient Background */}
-      <div className="relative min-h-[calc(100vh-2rem)] -m-6 mb-0 bg-gradient-to-br from-primary-light via-background to-accent/20 overflow-hidden">
+      <div className="relative min-h-[calc(100vh-2rem)] -m-6 -ml-8 mb-0 bg-gradient-to-br from-primary-light via-background to-accent/20 overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
@@ -77,7 +77,7 @@ export const ContentIdeas = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse delay-500"></div>
         </div>
 
-        <div className="relative z-10 px-6 py-12">
+        <div className="relative z-10 pl-4 pr-6 py-12">
           {/* Header with Dynamic Icons */}
           <div className="max-w-4xl mx-auto text-center mb-12">
             <div className="flex items-center justify-center gap-4 mb-6">
