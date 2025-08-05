@@ -359,21 +359,47 @@ export const PostApproval = () => {
                         {post.postImage && (
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Post Image</Label>
-                            <div className="mt-1">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-8 text-xs"
-                                onClick={() => {
-                                  const imageUrl = typeof post.postImage === 'string' 
-                                    ? post.postImage 
-                                    : (post.postImage as any)?.url;
-                                  if (imageUrl) window.open(imageUrl, '_blank');
-                                }}
-                              >
-                                <ImageIcon className="w-3 h-3 mr-1" />
-                                View Image
-                              </Button>
+                            <div className="mt-2 space-y-2">
+                              {(() => {
+                                const imageUrl = typeof post.postImage === 'string' 
+                                  ? post.postImage 
+                                  : (post.postImage as any)?.url;
+                                
+                                return imageUrl ? (
+                                  <div className="space-y-2">
+                                    <div className="w-full max-w-sm">
+                                      <img 
+                                        src={imageUrl} 
+                                        alt="Post image"
+                                        className="w-full h-auto rounded-lg border shadow-sm"
+                                        onError={(e) => {
+                                          console.error('Image failed to load:', imageUrl);
+                                          e.currentTarget.style.display = 'none';
+                                        }}
+                                      />
+                                    </div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-8 text-xs"
+                                      onClick={() => window.open(imageUrl, '_blank')}
+                                    >
+                                      <ImageIcon className="w-3 h-3 mr-1" />
+                                      View Full Size
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 text-xs"
+                                    disabled
+                                  >
+                                    <ImageIcon className="w-3 h-3 mr-1" />
+                                    No Image URL
+                                  </Button>
+                                );
+                              })()}
                             </div>
                           </div>
                         )}
