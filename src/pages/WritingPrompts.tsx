@@ -33,7 +33,21 @@ export const WritingPrompts = () => {
         console.log('Attempting to fetch writing prompts...');
         const data = await fetchWritingPrompts();
         console.log('Writing prompts data received:', data);
-        setPrompts(data);
+        
+        // Filter out unwanted channels
+        const excludedChannels = [
+          'Image Generator',
+          'Blog', 
+          'YouTube Shorts Description',
+          'Pinterest Description',
+          'YouTube Shorts Title'
+        ];
+        
+        const filteredPrompts = data.filter(prompt => 
+          !excludedChannels.includes(prompt.channel)
+        );
+        
+        setPrompts(filteredPrompts);
       } catch (error) {
         console.error('Failed to load writing prompts:', error);
         toast({
