@@ -25,6 +25,7 @@ export const WritingPrompts = () => {
   const [prompts, setPrompts] = useState<EditingPrompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
+  const [changedPrompts, setChangedPrompts] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const loadPrompts = async () => {
@@ -108,6 +109,15 @@ export const WritingPrompts = () => {
         i === index ? { ...savedPrompt, isEditing: false } : p
       ));
 
+      // Remove from changed prompts
+      if (savedPrompt.id) {
+        setChangedPrompts(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(savedPrompt.id!);
+          return newSet;
+        });
+      }
+
       toast({
         title: "Prompt Saved!",
         description: `Writing prompt for ${PLATFORM_CONFIGS[prompt.channel as Platform]?.name || prompt.channel} has been saved.`,
@@ -122,6 +132,48 @@ export const WritingPrompts = () => {
       setSavingIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(tempId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleUpdatePrompt = async (index: number) => {
+    const prompt = prompts[index];
+    if (!prompt.id || !prompt.prompt.trim()) return;
+
+    setSavingIds(prev => new Set([...prev, prompt.id!]));
+
+    try {
+      const savedPrompt = await updateWritingPrompt(prompt.id!, {
+        channel: prompt.channel,
+        prompt: prompt.prompt
+      });
+
+      setPrompts(prev => prev.map((p, i) => 
+        i === index ? { ...savedPrompt } : p
+      ));
+
+      // Remove from changed prompts
+      setChangedPrompts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(prompt.id!);
+        return newSet;
+      });
+
+      toast({
+        title: "Prompt Updated!",
+        description: `Writing prompt for ${PLATFORM_CONFIGS[prompt.channel as Platform]?.name || prompt.channel} has been updated.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Update Failed",
+        description: "Could not update writing prompt. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(prompt.id!);
         return newSet;
       });
     }
@@ -160,6 +212,12 @@ export const WritingPrompts = () => {
     setPrompts(prev => prev.map((prompt, i) => 
       i === index ? { ...prompt, [field]: value } : prompt
     ));
+    
+    // Track changed prompts
+    const prompt = prompts[index];
+    if (prompt.id) {
+      setChangedPrompts(prev => new Set([...prev, prompt.id!]));
+    }
   };
 
   if (loading) {
@@ -247,9 +305,6 @@ export const WritingPrompts = () => {
                             ) : (
                               <span className="flex items-center space-x-2">
                                 <span>{platformConfig?.name || prompt.channel}</span>
-                                <Badge variant="outline">
-                                  Max {platformConfig?.maxChars || 'N/A'} chars
-                                </Badge>
                               </span>
                             )}
                           </CardTitle>
@@ -316,10 +371,38 @@ export const WritingPrompts = () => {
                         className="min-h-[100px]"
                       />
                     ) : (
-                      <div className="p-4 bg-muted/50 rounded-lg">
-                        <p className="text-sm whitespace-pre-wrap">
-                          {prompt.prompt || 'No prompt defined yet.'}
-                        </p>
+                      <div className="space-y-4">
+                        <div className="p-4 bg-muted/50 rounded-lg">
+                          <Textarea
+                            value={prompt.prompt || ''}
+                            onChange={(e) => handleChange(index, 'prompt', e.target.value)}
+                            placeholder={`Enter the writing prompt for ${platformConfig?.name || prompt.channel}...`}
+                            className="min-h-[100px] border-0 bg-transparent p-0 resize-none focus-visible:ring-0"
+                          />
+                        </div>
+                        
+                        {/* Individual Update Button */}
+                        {changedPrompts.has(prompt.id || '') && (
+                          <div className="flex justify-end">
+                            <Button 
+                              onClick={() => handleUpdatePrompt(index)}
+                              disabled={isLoading}
+                              size="sm"
+                            >
+                              {isLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Updating...
+                                </>
+                              ) : (
+                                <>
+                                  <Save className="w-4 h-4 mr-2" />
+                                  Update Prompt
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>
