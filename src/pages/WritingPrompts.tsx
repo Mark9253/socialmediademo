@@ -29,7 +29,9 @@ export const WritingPrompts = () => {
   useEffect(() => {
     const loadPrompts = async () => {
       try {
+        console.log('Attempting to fetch writing prompts...');
         const data = await fetchWritingPrompts();
+        console.log('Writing prompts data received:', data);
         setPrompts(data);
       } catch (error) {
         console.error('Failed to load writing prompts:', error);
