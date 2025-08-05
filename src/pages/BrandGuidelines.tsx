@@ -194,7 +194,7 @@ export const BrandGuidelines = () => {
               <Label htmlFor="guidelines">Brand Guidelines</Label>
               <Textarea
                 id="guidelines"
-                value={mainGuidelines.guidelines}
+                value={mainGuidelines.guidelines || ''}
                 onChange={(e) => handleMainGuidelinesChange(e.target.value)}
                 placeholder="Describe your brand voice, tone, key messages, and style guidelines..."
                 className="mt-1 min-h-[200px]"
