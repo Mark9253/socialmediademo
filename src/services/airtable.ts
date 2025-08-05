@@ -4,10 +4,18 @@ import { SocialPost, BrandGuideline, WritingPrompt } from '@/types';
 // Social Posts
 export const fetchSocialPosts = async (): Promise<SocialPost[]> => {
   try {
+    console.log('Fetching from URL:', `${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.socialPosts}`);
+    console.log('Using headers:', getHeaders());
+    
     const response = await fetch(`${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.socialPosts}`, {
       headers: getHeaders()
     });
-    const data = await response.json();
+    
+    console.log('Response status:', response.status);
+    const responseText = await response.text();
+    console.log('Raw response:', responseText);
+    
+    const data = JSON.parse(responseText);
     
     return data.records.map((record: any) => ({
       ID: record.id, // Airtable record ID
