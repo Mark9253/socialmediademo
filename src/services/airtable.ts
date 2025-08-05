@@ -77,6 +77,16 @@ export const updateSocialPost = async (id: string, updates: Partial<SocialPost>)
       throw new Error(`Airtable API error: ${response.status} - ${JSON.stringify(data)}`);
     }
     
+    // Verify the update actually took effect
+    console.log('Checking if Status field was updated in response...');
+    console.log('Expected Status:', updates.Status);
+    console.log('Actual Status in response:', data.fields.Status);
+    
+    if (updates.Status && data.fields.Status !== updates.Status) {
+      console.error('WARNING: Status update may have failed!');
+      console.error('Sent:', updates.Status, 'but got back:', data.fields.Status);
+    }
+    
     return {
       ID: data.id,
       ...data.fields
