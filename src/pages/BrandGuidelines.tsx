@@ -341,7 +341,7 @@ export const BrandGuidelines = () => {
                       onClick={() => handleSaveImageStyle(style.recordId)}
                       disabled={savingRecord === style.recordId || !changeSets.has(style.recordId)}
                       size="sm"
-                      variant="outline"
+                      variant="default"
                     >
                       {savingRecord === style.recordId ? (
                         <>
