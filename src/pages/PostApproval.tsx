@@ -268,12 +268,10 @@ export const PostApproval = () => {
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select new status..." />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-background border shadow-lg z-50">
                               <SelectItem value="Approved">Approved</SelectItem>
                               <SelectItem value="Needs Approval">Needs Approval</SelectItem>
-                              <SelectItem value="Draft">Draft</SelectItem>
-                              <SelectItem value="Rejected">Rejected</SelectItem>
-                              <SelectItem value="Published">Published</SelectItem>
+                              <SelectItem value="Declined">Declined</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
