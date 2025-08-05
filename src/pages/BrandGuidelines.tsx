@@ -5,29 +5,50 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Palette, Save, Loader2, CheckCircle } from 'lucide-react';
+import { Palette, Save, Loader2, CheckCircle, Image } from 'lucide-react';
 import { BrandGuideline } from '@/types';
 import { fetchBrandGuidelines, updateBrandGuidelines } from '@/services/airtable';
 import { useToast } from '@/hooks/use-toast';
 
+interface ImageStyleRecord {
+  recordId: string;
+  imageStyle: string;
+  stylePrompt: string;
+}
+
 export const BrandGuidelines = () => {
   const { toast } = useToast();
-  const [guidelines, setGuidelines] = useState<BrandGuideline>({
+  const [mainGuidelines, setMainGuidelines] = useState<BrandGuideline>({
     guidelines: '',
     imageStyle: '',
-    stylePrompt: ''
+    stylePrompt: '',
+    recordId: ''
   });
+  const [imageStyles, setImageStyles] = useState<ImageStyleRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [changeSets, setChangeSets] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const loadGuidelines = async () => {
       try {
         const data = await fetchBrandGuidelines();
-        if (data.length > 0) {
-          setGuidelines(data[0]);
+        
+        // Find the main guidelines record (record 1)
+        const mainRecord = data.find(record => record.guidelines);
+        if (mainRecord) {
+          setMainGuidelines(mainRecord);
         }
+        
+        // Find image style records (records 2-6)
+        const styleRecords = data.filter(record => record.imageStyle && !record.guidelines);
+        setImageStyles(styleRecords.map(record => ({
+          recordId: record.recordId || '',
+          imageStyle: record.imageStyle,
+          stylePrompt: record.stylePrompt
+        })));
+        
       } catch (error) {
         console.error('Failed to load brand guidelines:', error);
         toast({
@@ -43,23 +64,50 @@ export const BrandGuidelines = () => {
     loadGuidelines();
   }, [toast]);
 
-  const handleChange = (field: keyof BrandGuideline, value: string) => {
-    setGuidelines(prev => ({ ...prev, [field]: value }));
+  const handleMainGuidelinesChange = (value: string) => {
+    setMainGuidelines(prev => ({ ...prev, guidelines: value }));
     setHasChanges(true);
+    setChangeSets(prev => new Set(prev).add(mainGuidelines.recordId || 'main'));
+  };
+
+  const handleImageStyleChange = (recordId: string, value: string) => {
+    setImageStyles(prev => prev.map(style => 
+      style.recordId === recordId 
+        ? { ...style, stylePrompt: value }
+        : style
+    ));
+    setHasChanges(true);
+    setChangeSets(prev => new Set(prev).add(recordId));
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      if (guidelines.recordId) {
-        await updateBrandGuidelines(guidelines.recordId, {
-          guidelines: guidelines.guidelines,
-          imageStyle: guidelines.imageStyle,
-          stylePrompt: guidelines.stylePrompt
+      // Save main guidelines if changed
+      if (changeSets.has(mainGuidelines.recordId || 'main') && mainGuidelines.recordId) {
+        await updateBrandGuidelines(mainGuidelines.recordId, {
+          guidelines: mainGuidelines.guidelines,
+          imageStyle: mainGuidelines.imageStyle,
+          stylePrompt: mainGuidelines.stylePrompt
         });
       }
       
+      // Save image style records if changed
+      for (const recordId of changeSets) {
+        if (recordId !== (mainGuidelines.recordId || 'main')) {
+          const styleRecord = imageStyles.find(style => style.recordId === recordId);
+          if (styleRecord) {
+            await updateBrandGuidelines(recordId, {
+              guidelines: '',
+              imageStyle: styleRecord.imageStyle,
+              stylePrompt: styleRecord.stylePrompt
+            });
+          }
+        }
+      }
+      
       setHasChanges(false);
+      setChangeSets(new Set());
       toast({
         title: "Guidelines Saved!",
         description: "Your brand guidelines have been updated successfully.",
@@ -128,7 +176,7 @@ export const BrandGuidelines = () => {
           )}
         </div>
 
-        {/* Brand Voice & Guidelines */}
+        {/* Main Brand Guidelines */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -138,7 +186,7 @@ export const BrandGuidelines = () => {
               <span>Brand Voice & Guidelines</span>
             </CardTitle>
             <CardDescription>
-              Describe your brand's personality, tone, and key messaging guidelines
+              Your main brand guidelines that define voice, tone, and messaging
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -146,10 +194,10 @@ export const BrandGuidelines = () => {
               <Label htmlFor="guidelines">Brand Guidelines</Label>
               <Textarea
                 id="guidelines"
-                value={guidelines.guidelines}
-                onChange={(e) => handleChange('guidelines', e.target.value)}
+                value={mainGuidelines.guidelines}
+                onChange={(e) => handleMainGuidelinesChange(e.target.value)}
                 placeholder="Describe your brand voice, tone, key messages, and style guidelines..."
-                className="mt-1 min-h-[150px]"
+                className="mt-1 min-h-[200px]"
               />
               <p className="text-sm text-muted-foreground mt-2">
                 Include details about your brand personality, preferred tone of voice, key messaging, and any specific guidelines for content creation.
@@ -158,53 +206,43 @@ export const BrandGuidelines = () => {
           </CardContent>
         </Card>
 
-        {/* Visual Style */}
+        {/* Image Style Prompts */}
         <Card>
           <CardHeader>
-            <CardTitle>Visual Style Preferences</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-2 rounded-lg bg-primary-light">
+                <Image className="w-5 h-5 text-primary" />
+              </div>
+              <span>Image Style Prompts</span>
+            </CardTitle>
             <CardDescription>
-              Define your preferred visual style for generated images and graphics
+              Configure different image styles for various content types
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div>
-              <Label htmlFor="imageStyle">Image Style</Label>
-              <Input
-                id="imageStyle"
-                value={guidelines.imageStyle}
-                onChange={(e) => handleChange('imageStyle', e.target.value)}
-                placeholder="e.g., Modern, minimalist, corporate, playful, vintage..."
-                className="mt-1"
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                Describe your preferred visual style in a few words (e.g., "modern and minimalist", "warm and friendly").
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Style Prompt */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Detailed Style Prompt</CardTitle>
-            <CardDescription>
-              Provide detailed instructions for AI image generation that align with your brand
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div>
-              <Label htmlFor="stylePrompt">AI Style Prompt</Label>
-              <Textarea
-                id="stylePrompt"
-                value={guidelines.stylePrompt}
-                onChange={(e) => handleChange('stylePrompt', e.target.value)}
-                placeholder="Detailed prompt for AI image generation (colors, style, mood, elements to include/avoid)..."
-                className="mt-1 min-h-[120px]"
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                This will be used as part of AI image generation prompts. Include specific colors, styles, moods, and any elements to include or avoid.
-              </p>
-            </div>
+          <CardContent className="space-y-6">
+            {imageStyles.map((style) => (
+              <div key={style.recordId} className="p-4 border rounded-lg bg-muted/30">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-medium capitalize text-lg">{style.imageStyle}</h4>
+                  <span className="text-xs text-muted-foreground px-2 py-1 bg-background rounded">
+                    Style Type
+                  </span>
+                </div>
+                <div>
+                  <Label htmlFor={`style-${style.recordId}`}>Style Prompt</Label>
+                  <Textarea
+                    id={`style-${style.recordId}`}
+                    value={style.stylePrompt}
+                    onChange={(e) => handleImageStyleChange(style.recordId, e.target.value)}
+                    placeholder="Enter detailed style prompt for this image type..."
+                    className="mt-1 min-h-[100px]"
+                  />
+                  <p className="text-sm text-muted-foreground mt-2">
+                    This prompt will be used for generating {style.imageStyle} style images.
+                  </p>
+                </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
