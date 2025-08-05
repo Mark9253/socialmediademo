@@ -110,7 +110,8 @@ export const fetchWritingPrompts = async (): Promise<WritingPrompt[]> => {
     
     return data.records.map((record: any) => ({
       id: record.id,
-      ...record.fields
+      channel: record.fields.Channel, // Map from Airtable field name
+      prompt: record.fields.Prompt // Map from Airtable field name
     }));
   } catch (error) {
     console.error('Error fetching writing prompts:', error);
@@ -124,14 +125,18 @@ export const updateWritingPrompt = async (id: string, prompt: Omit<WritingPrompt
       method: 'PATCH',
       headers: getHeaders(),
       body: JSON.stringify({
-        fields: prompt
+        fields: {
+          Channel: prompt.channel, // Map to Airtable field name
+          Prompt: prompt.prompt // Map to Airtable field name
+        }
       })
     });
     const data = await response.json();
     
     return {
       id: data.id,
-      ...data.fields
+      channel: data.fields.Channel, // Map from Airtable field name
+      prompt: data.fields.Prompt // Map from Airtable field name
     };
   } catch (error) {
     console.error('Error updating writing prompt:', error);
@@ -145,14 +150,18 @@ export const createWritingPrompt = async (prompt: Omit<WritingPrompt, 'id'>): Pr
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
-        fields: prompt
+        fields: {
+          Channel: prompt.channel, // Map to Airtable field name
+          Prompt: prompt.prompt // Map to Airtable field name
+        }
       })
     });
     const data = await response.json();
     
     return {
       id: data.id,
-      ...data.fields
+      channel: data.fields.Channel, // Map from Airtable field name
+      prompt: data.fields.Prompt // Map from Airtable field name
     };
   } catch (error) {
     console.error('Error creating writing prompt:', error);
