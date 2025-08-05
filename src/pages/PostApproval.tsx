@@ -26,10 +26,7 @@ export const PostApproval = () => {
         const data = await fetchSocialPosts();
         // Filter only posts that need approval
         const needsApprovalPosts = data.filter(post => 
-          post.Status && (
-            post.Status.toLowerCase().includes('needs approval') ||
-            post.Status.toLowerCase().includes('waiting for content')
-          )
+          post.Status && post.Status.toLowerCase() === 'needs approval'
         );
         setPosts(needsApprovalPosts);
       } catch (error) {
@@ -98,9 +95,8 @@ export const PostApproval = () => {
         }
       }, 3000);
 
-      // If status is no longer requiring approval, remove from list
-      const needsApproval = newStatus.toLowerCase().includes('needs approval') || 
-                           newStatus.toLowerCase().includes('waiting for content');
+      // If status is no longer "Needs Approval", remove from list
+      const needsApproval = newStatus.toLowerCase() === 'needs approval';
       console.log('Checking if should remove post:', newStatus, 'needs approval:', needsApproval);
       if (!needsApproval) {
         console.log('Removing post from approval list:', postId);
