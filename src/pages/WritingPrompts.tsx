@@ -325,9 +325,6 @@ export const WritingPrompts = () => {
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                         <div className="p-2 rounded-lg bg-accent">
-                           {getPlatformIcon()}
-                         </div>
                         <div>
                           <CardTitle className="text-lg">
                             {prompt.isEditing ? (
