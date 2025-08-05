@@ -46,19 +46,34 @@ export const updateSocialPost = async (id: string, updates: Partial<SocialPost>)
     const url = `${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.socialPosts}/${id}`;
     console.log('Making PATCH request to:', url);
     
+    const requestBody = {
+      fields: updates
+    };
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+    
     const response = await fetch(url, {
       method: 'PATCH',
       headers: getHeaders(),
-      body: JSON.stringify({
-        fields: updates
-      })
+      body: JSON.stringify(requestBody)
     });
     
     console.log('Response status:', response.status);
-    const data = await response.json();
-    console.log('Response data:', data);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    
+    const responseText = await response.text();
+    console.log('Raw response text:', responseText);
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+      console.log('Parsed response data:', data);
+    } catch (parseError) {
+      console.error('Failed to parse response JSON:', parseError);
+      throw new Error(`Invalid JSON response: ${responseText}`);
+    }
     
     if (!response.ok) {
+      console.error('API error response:', data);
       throw new Error(`Airtable API error: ${response.status} - ${JSON.stringify(data)}`);
     }
     
