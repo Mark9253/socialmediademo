@@ -26,7 +26,10 @@ export const PostApproval = () => {
         const data = await fetchSocialPosts();
         // Filter only posts that need approval
         const needsApprovalPosts = data.filter(post => 
-          post.Status && post.Status.toLowerCase().includes('needs approval')
+          post.Status && (
+            post.Status.toLowerCase().includes('needs approval') ||
+            post.Status.toLowerCase().includes('waiting for content')
+          )
         );
         setPosts(needsApprovalPosts);
       } catch (error) {
@@ -72,9 +75,11 @@ export const PostApproval = () => {
         return newMap;
       });
 
-      // If status is no longer "Needs Approval", remove from list
-      console.log('Checking if should remove post:', newStatus, 'includes needs approval:', newStatus.toLowerCase().includes('needs approval'));
-      if (!newStatus.toLowerCase().includes('needs approval')) {
+      // If status is no longer requiring approval, remove from list
+      const needsApproval = newStatus.toLowerCase().includes('needs approval') || 
+                           newStatus.toLowerCase().includes('waiting for content');
+      console.log('Checking if should remove post:', newStatus, 'needs approval:', needsApproval);
+      if (!needsApproval) {
         console.log('Removing post from approval list:', postId);
         setPosts(prev => prev.filter(post => post.ID !== postId));
       }
