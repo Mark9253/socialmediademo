@@ -61,7 +61,9 @@ export const PostApproval = () => {
     setUpdatingPosts(prev => new Set([...prev, postId]));
     
     try {
-      await updateSocialPost(postId, { Status: newStatus });
+      console.log('About to call updateSocialPost with:', postId, { Status: newStatus });
+      const updatedPost = await updateSocialPost(postId, { Status: newStatus });
+      console.log('updateSocialPost returned:', updatedPost);
       
       // Update the post in the local state
       setPosts(prev => prev.map(post => 
