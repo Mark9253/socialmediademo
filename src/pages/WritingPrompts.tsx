@@ -41,6 +41,7 @@ export const WritingPrompts = () => {
           'YouTube Shorts Description',
           'Pinterest Description',
           'YouTube Shorts Title',
+          'YouTube Shorts Tilte', // Handle typo version
           'Pinterest Title'
         ];
         
