@@ -25,11 +25,11 @@ export const ContentIdeas = () => {
   const onSubmit = async (data: FormData) => {
     // Check if at least one field has content
     if (!data.topicsToResearch?.trim() && !data.articleUrl?.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in at least one field - either Topics to Research or Article URL.",
-        variant: "destructive",
-      });
+        toast({
+          title: "Validation Error",
+          description: "Please fill in at least one field - either Topics to Research or Article URL.",
+          variant: "destructive",
+        });
       return;
     }
     setIsSubmitting(true);
