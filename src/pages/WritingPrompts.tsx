@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Plus, Trash2, Save, Loader2, Edit3, Twitter, Linkedin, Facebook, Instagram, Mail } from 'lucide-react';
+import { FileText, Plus, Trash2, Save, Loader2, Edit3, X, Linkedin, Facebook, Instagram, Mail } from 'lucide-react';
 import { WritingPrompt, Platform, PLATFORM_CONFIGS } from '@/types';
 import { 
   fetchWritingPrompts, 
@@ -313,11 +313,19 @@ export const WritingPrompts = () => {
                  switch (prompt.channel.toLowerCase()) {
                    case 'linkedin': return <Linkedin className="w-5 h-5 text-blue-600" />;
                    case 'facebook': return <Facebook className="w-5 h-5 text-blue-500" />;
-                   case 'twitter': return <Twitter className="w-5 h-5 text-blue-400" />;
+                   case 'twitter': return <X className="w-5 h-5 text-gray-900 dark:text-white" />;
                    case 'instagram': return <Instagram className="w-5 h-5 text-pink-500" />;
                    case 'newsletter': return <Mail className="w-5 h-5 text-green-600" />;
                    default: return <FileText className="w-5 h-5 text-accent-foreground" />;
                  }
+               };
+
+               // Get platform display name
+               const getPlatformDisplayName = () => {
+                 if (prompt.channel.toLowerCase() === 'twitter') {
+                   return 'X';
+                 }
+                 return platformConfig?.name || prompt.channel;
                };
                
                return (
@@ -346,7 +354,7 @@ export const WritingPrompts = () => {
                              ) : (
                                <span className="flex items-center space-x-2">
                                  {getPlatformIcon()}
-                                 <span>{platformConfig?.name || prompt.channel}</span>
+                                 <span>{getPlatformDisplayName()}</span>
                                </span>
                             )}
                           </CardTitle>
