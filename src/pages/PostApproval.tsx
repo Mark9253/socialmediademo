@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle, Loader2, FileText, Calendar, ExternalLink, Image as ImageIcon, Copy, Check } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CheckCircle, Loader2, FileText, Calendar, ExternalLink, Image as ImageIcon, Copy, Check, Save } from 'lucide-react';
 import { SocialPost, Platform, PLATFORM_CONFIGS } from '@/types';
 import { fetchSocialPosts, updateSocialPost } from '@/services/airtable';
 import { useToast } from '@/hooks/use-toast';
@@ -14,8 +15,9 @@ export const PostApproval = () => {
   const { toast } = useToast();
   const [posts, setPosts] = useState<SocialPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [approvingPosts, setApprovingPosts] = useState<Set<string>>(new Set());
+  const [updatingPosts, setUpdatingPosts] = useState<Set<string>>(new Set());
   const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
+  const [statusChanges, setStatusChanges] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -41,32 +43,68 @@ export const PostApproval = () => {
     loadPosts();
   }, [toast]);
 
-  const handleApproval = async (postId: string) => {
-    setApprovingPosts(prev => new Set([...prev, postId]));
+  const handleStatusUpdate = async (postId: string) => {
+    const newStatus = statusChanges.get(postId);
+    if (!newStatus) {
+      toast({
+        title: "No Status Selected",
+        description: "Please select a status before submitting.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUpdatingPosts(prev => new Set([...prev, postId]));
     
     try {
-      await updateSocialPost(postId, { Status: 'Approved' });
+      await updateSocialPost(postId, { Status: newStatus });
       
-      // Remove the post from the list since it's no longer needs approval
-      setPosts(prev => prev.filter(post => post.ID !== postId));
+      // Update the post in the local state
+      setPosts(prev => prev.map(post => 
+        post.ID === postId ? { ...post, Status: newStatus } : post
+      ));
+
+      // Clear the status change for this post
+      setStatusChanges(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(postId);
+        return newMap;
+      });
+
+      // If status is no longer "Needs Approval", remove from list
+      if (!newStatus.toLowerCase().includes('needs approval')) {
+        setPosts(prev => prev.filter(post => post.ID !== postId));
+      }
       
       toast({
-        title: "Post Approved!",
-        description: "The post has been approved successfully.",
+        title: "Status Updated!",
+        description: `Post status has been changed to ${newStatus}.`,
       });
     } catch (error) {
       toast({
-        title: "Approval Failed",
-        description: "Could not approve the post. Please try again.",
+        title: "Update Failed",
+        description: "Could not update the post status. Please try again.",
         variant: "destructive"
       });
     } finally {
-      setApprovingPosts(prev => {
+      setUpdatingPosts(prev => {
         const newSet = new Set(prev);
         newSet.delete(postId);
         return newSet;
       });
     }
+  };
+
+  const handleStatusChange = (postId: string, newStatus: string) => {
+    setStatusChanges(prev => new Map(prev.set(postId, newStatus)));
+  };
+
+  const getSelectedStatus = (postId: string) => {
+    return statusChanges.get(postId) || '';
+  };
+
+  const hasStatusChange = (postId: string) => {
+    return statusChanges.has(postId);
   };
 
   const copyToClipboard = async (text: string, itemId: string) => {
@@ -220,23 +258,43 @@ export const PostApproval = () => {
                           )}
                         </div>
                       </div>
-                      <Button
-                        onClick={() => handleApproval(post.ID!)}
-                        disabled={approvingPosts.has(post.ID!)}
-                        className="bg-success hover:bg-success/90 text-success-foreground"
-                      >
-                        {approvingPosts.has(post.ID!) ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Approving...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Approve Post
-                          </>
-                        )}
-                      </Button>
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium mb-2 block">Update Status</Label>
+                          <Select 
+                            value={getSelectedStatus(post.ID!)} 
+                            onValueChange={(value) => handleStatusChange(post.ID!, value)}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select new status..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Approved">Approved</SelectItem>
+                              <SelectItem value="Needs Approval">Needs Approval</SelectItem>
+                              <SelectItem value="Draft">Draft</SelectItem>
+                              <SelectItem value="Rejected">Rejected</SelectItem>
+                              <SelectItem value="Published">Published</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Button
+                          onClick={() => handleStatusUpdate(post.ID!)}
+                          disabled={updatingPosts.has(post.ID!) || !hasStatusChange(post.ID!)}
+                          className="mt-6"
+                        >
+                          {updatingPosts.has(post.ID!) ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Updating...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="w-4 h-4 mr-2" />
+                              Submit
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   
