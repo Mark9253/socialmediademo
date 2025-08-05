@@ -19,9 +19,19 @@ const N8N_FORM_URL = 'https://n8n.srv886259.hstgr.cloud/webhook-test/775c6dad-67
 export const ContentIdeas = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>();
+  const { register, handleSubmit, reset, formState: { errors }, watch } = useForm<FormData>();
+  const watchedFields = watch();
 
   const onSubmit = async (data: FormData) => {
+    // Check if at least one field has content
+    if (!data.topicsToResearch?.trim() && !data.articleUrl?.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in at least one field - either Topics to Research or Article URL.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const response = await fetch(N8N_FORM_URL, {
@@ -71,38 +81,32 @@ export const ContentIdeas = () => {
           <CardHeader>
             <CardTitle>Submit Content Ideas</CardTitle>
             <CardDescription>
-              Provide either a topic for research or an existing article URL that can be used to generate social media content.
+              Provide either a topic for research or an existing article URL that can be used to generate social media content. At least one field is required.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="topicsToResearch">
-                  Topics to Research <span className="text-destructive">*</span>
+                  Topics to Research
                 </Label>
                 <Textarea
                   id="topicsToResearch"
                   placeholder="Enter topics you'd like us to research and create content about..."
                   className="min-h-[100px]"
-                  {...register('topicsToResearch', { 
-                    required: 'Topics to research is required' 
-                  })}
+                  {...register('topicsToResearch')}
                 />
-                {errors.topicsToResearch && (
-                  <p className="text-sm text-destructive">{errors.topicsToResearch.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="articleUrl">
-                  Article URL <span className="text-destructive">*</span>
+                  Article URL
                 </Label>
                 <Input
                   id="articleUrl"
                   type="url"
                   placeholder="https://example.com/article"
                   {...register('articleUrl', { 
-                    required: 'Article URL is required',
                     pattern: {
                       value: /^https?:\/\/.+\..+/,
                       message: 'Please enter a valid URL'
