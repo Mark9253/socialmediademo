@@ -7,6 +7,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { ContentGenerator } from "./pages/ContentGenerator";
 import { BrandGuidelines } from "./pages/BrandGuidelines";
 import { WritingPrompts } from "./pages/WritingPrompts";
+import { PostApproval } from "./pages/PostApproval";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/generator" element={<ContentGenerator />} />
           <Route path="/guidelines" element={<BrandGuidelines />} />
           <Route path="/prompts" element={<WritingPrompts />} />
+          <Route path="/approval" element={<PostApproval />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,0 +1,357 @@
+import { useState, useEffect } from 'react';
+import { Layout } from '@/components/Layout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { CheckCircle, Loader2, FileText, Calendar, ExternalLink, Image as ImageIcon, Copy, Check } from 'lucide-react';
+import { SocialPost, Platform, PLATFORM_CONFIGS } from '@/types';
+import { fetchSocialPosts, updateSocialPost } from '@/services/airtable';
+import { useToast } from '@/hooks/use-toast';
+
+export const PostApproval = () => {
+  const { toast } = useToast();
+  const [posts, setPosts] = useState<SocialPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [approvingPosts, setApprovingPosts] = useState<Set<string>>(new Set());
+  const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const data = await fetchSocialPosts();
+        // Filter only posts that need approval
+        const needsApprovalPosts = data.filter(post => 
+          post.Status && post.Status.toLowerCase().includes('needs approval')
+        );
+        setPosts(needsApprovalPosts);
+      } catch (error) {
+        console.error('Failed to load posts:', error);
+        toast({
+          title: "Loading Failed",
+          description: "Could not load posts for approval. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPosts();
+  }, [toast]);
+
+  const handleApproval = async (postId: string) => {
+    setApprovingPosts(prev => new Set([...prev, postId]));
+    
+    try {
+      await updateSocialPost(postId, { Status: 'Approved' });
+      
+      // Remove the post from the list since it's no longer needs approval
+      setPosts(prev => prev.filter(post => post.ID !== postId));
+      
+      toast({
+        title: "Post Approved!",
+        description: "The post has been approved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Approval Failed",
+        description: "Could not approve the post. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setApprovingPosts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(postId);
+        return newSet;
+      });
+    }
+  };
+
+  const copyToClipboard = async (text: string, itemId: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedItems(prev => new Set([...prev, itemId]));
+      
+      toast({
+        title: "Copied!",
+        description: "Content copied to clipboard.",
+      });
+      
+      // Reset copy indicator after 2 seconds
+      setTimeout(() => {
+        setCopiedItems(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(itemId);
+          return newSet;
+        });
+      }, 2000);
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy to clipboard.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    const icons: Record<string, string> = {
+      twitter: '🐦',
+      linkedin: '💼', 
+      instagram: '📸',
+      facebook: '👥',
+      blog: '📝'
+    };
+    return icons[platform.toLowerCase()] || '📱';
+  };
+
+  const getCharacterCount = (text: string, platform: Platform) => {
+    if (!text) return { count: 0, max: PLATFORM_CONFIGS[platform]?.maxChars || 0, isOver: false };
+    
+    const max = PLATFORM_CONFIGS[platform]?.maxChars || 0;
+    const count = text.length;
+    return {
+      count,
+      max,
+      isOver: count > max
+    };
+  };
+
+  const renderPlatformContent = (post: SocialPost, platform: Platform) => {
+    const fieldMap: Record<Platform, keyof SocialPost> = {
+      twitter: 'twitterCopy',
+      linkedin: 'linkedinCopy', 
+      instagram: 'instagramCopy',
+      facebook: 'facebookCopy',
+      blog: 'blogCopy'
+    };
+
+    const content = post[fieldMap[platform]] as string;
+    const config = PLATFORM_CONFIGS[platform];
+    const charData = getCharacterCount(content, platform);
+    const copyId = `${post.ID}-${platform}`;
+
+    if (!content) return null;
+
+    return (
+      <div key={platform} className="p-4 border rounded-lg bg-muted/30">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">{getPlatformIcon(platform)}</span>
+            <Label className="font-medium">{config.name}</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className={`text-xs ${charData.isOver ? 'text-destructive' : 'text-muted-foreground'}`}>
+              {charData.count}/{charData.max}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => copyToClipboard(content, copyId)}
+              className="h-6 w-6 p-0"
+            >
+              {copiedItems.has(copyId) ? (
+                <Check className="w-3 h-3 text-success" />
+              ) : (
+                <Copy className="w-3 h-3" />
+              )}
+            </Button>
+          </div>
+        </div>
+        <Textarea
+          value={content}
+          readOnly
+          className="min-h-[100px] resize-none text-sm bg-background"
+        />
+      </div>
+    );
+  };
+
+  return (
+    <Layout>
+      <div className="max-w-none space-y-8 pr-4 lg:pr-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
+            Post Approval
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Review and approve posts that are ready for publishing
+          </p>
+        </div>
+
+        {/* Content */}
+        <div className="space-y-6">
+          {loading ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="h-6 bg-muted animate-pulse rounded" />
+                      <div className="h-20 bg-muted animate-pulse rounded" />
+                      <div className="h-32 bg-muted animate-pulse rounded" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : posts.length > 0 ? (
+            <div className="space-y-6">
+              {posts.map((post) => (
+                <Card key={post.ID} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-xl mb-2">
+                          {post.sourceHeadline || 'No headline'}
+                        </CardTitle>
+                        <div className="flex items-center space-x-4">
+                          <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
+                            {post.Status}
+                          </Badge>
+                          {post.Created && (
+                            <div className="flex items-center space-x-1 text-sm text-muted-foreground">
+                              <Calendar className="w-4 h-4" />
+                              <span>{new Date(post.Created).toLocaleDateString()}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => handleApproval(post.ID!)}
+                        disabled={approvingPosts.has(post.ID!)}
+                        className="bg-success hover:bg-success/90 text-success-foreground"
+                      >
+                        {approvingPosts.has(post.ID!) ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Approving...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Approve Post
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-6">
+                    {/* Source Content */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Source Summary</Label>
+                        <div className="mt-1 p-3 bg-muted/50 rounded-md min-h-[80px]">
+                          <p className="text-sm text-foreground leading-relaxed">
+                            {post.sourceSummary || 'No summary provided'}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {/* Source URL */}
+                        {post.sourceURL && (
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Source URL</Label>
+                            <div className="mt-1">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 text-xs"
+                                onClick={() => {
+                                  const url = typeof post.sourceURL === 'string' 
+                                    ? post.sourceURL 
+                                    : (post.sourceURL as any)?.url;
+                                  if (url) window.open(url, '_blank');
+                                }}
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                View Source
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Go to Article */}
+                        {post.goToArticle && (
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Article Link</Label>
+                            <div className="mt-1">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 text-xs"
+                                onClick={() => {
+                                  const url = typeof post.goToArticle === 'string' 
+                                    ? post.goToArticle 
+                                    : (post.goToArticle as any)?.url;
+                                  if (url) window.open(url, '_blank');
+                                }}
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                Go to Article
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Post Image */}
+                        {post.postImage && (
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Post Image</Label>
+                            <div className="mt-1">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 text-xs"
+                                onClick={() => {
+                                  const imageUrl = typeof post.postImage === 'string' 
+                                    ? post.postImage 
+                                    : (post.postImage as any)?.url;
+                                  if (imageUrl) window.open(imageUrl, '_blank');
+                                }}
+                              >
+                                <ImageIcon className="w-3 h-3 mr-1" />
+                                View Image
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Platform Content */}
+                    <div>
+                      <Label className="text-lg font-semibold mb-4 block">Generated Content</Label>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {(Object.keys(PLATFORM_CONFIGS) as Platform[]).map(platform => 
+                          renderPlatformContent(post, platform)
+                        ).filter(Boolean)}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="text-center py-12">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No Posts Need Approval</h3>
+                <p className="text-muted-foreground">
+                  All posts have been reviewed! New posts requiring approval will appear here.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </Layout>
+  );
+};
