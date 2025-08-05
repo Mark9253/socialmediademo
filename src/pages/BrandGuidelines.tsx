@@ -27,6 +27,7 @@ export const BrandGuidelines = () => {
   const [imageStyles, setImageStyles] = useState<ImageStyleRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingRecord, setSavingRecord] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [changeSets, setChangeSets] = useState<Set<string>>(new Set());
 
@@ -83,6 +84,73 @@ export const BrandGuidelines = () => {
     ));
     setHasChanges(true);
     setChangeSets(prev => new Set(prev).add(recordId));
+  };
+
+  const handleSaveMainGuidelines = async () => {
+    if (!mainGuidelines.recordId) return;
+    
+    setSavingRecord(mainGuidelines.recordId);
+    try {
+      await updateBrandGuidelines(mainGuidelines.recordId, {
+        Guidelines: mainGuidelines.guidelines, // Use capital G for Airtable
+        imageStyle: mainGuidelines.imageStyle,
+        stylePrompt: mainGuidelines.stylePrompt
+      });
+      
+      // Remove from change sets
+      setChangeSets(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(mainGuidelines.recordId || 'main');
+        return newSet;
+      });
+      
+      toast({
+        title: "Guidelines Saved!",
+        description: "Your brand guidelines have been updated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Could not save brand guidelines. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingRecord(null);
+    }
+  };
+
+  const handleSaveImageStyle = async (recordId: string) => {
+    const styleRecord = imageStyles.find(style => style.recordId === recordId);
+    if (!styleRecord) return;
+    
+    setSavingRecord(recordId);
+    try {
+      await updateBrandGuidelines(recordId, {
+        Guidelines: '', // Use capital G for Airtable
+        imageStyle: styleRecord.imageStyle,
+        stylePrompt: styleRecord.stylePrompt
+      });
+      
+      // Remove from change sets
+      setChangeSets(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(recordId);
+        return newSet;
+      });
+      
+      toast({
+        title: "Style Saved!",
+        description: `${styleRecord.imageStyle} style prompt has been updated successfully.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Could not save image style. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingRecord(null);
+    }
   };
 
   const handleSave = async () => {
@@ -207,6 +275,27 @@ export const BrandGuidelines = () => {
               <p className="text-sm text-muted-foreground mt-2">
                 Include details about your brand personality, preferred tone of voice, key messaging, and any specific guidelines for content creation.
               </p>
+              
+              {/* Individual Update Button for Main Guidelines */}
+              <div className="mt-4 flex justify-end">
+                <Button 
+                  onClick={handleSaveMainGuidelines}
+                  disabled={savingRecord === mainGuidelines.recordId || !changeSets.has(mainGuidelines.recordId || 'main')}
+                  size="sm"
+                >
+                  {savingRecord === mainGuidelines.recordId ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Update Guidelines
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -245,6 +334,28 @@ export const BrandGuidelines = () => {
                   <p className="text-sm text-muted-foreground mt-2">
                     This prompt will be used for generating {style.imageStyle} style images.
                   </p>
+                  
+                  {/* Individual Update Button for Image Style */}
+                  <div className="mt-3 flex justify-end">
+                    <Button 
+                      onClick={() => handleSaveImageStyle(style.recordId)}
+                      disabled={savingRecord === style.recordId || !changeSets.has(style.recordId)}
+                      size="sm"
+                      variant="outline"
+                    >
+                      {savingRecord === style.recordId ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Update Style
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
