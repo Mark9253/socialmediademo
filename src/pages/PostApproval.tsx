@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CheckCircle, Loader2, FileText, Calendar, ExternalLink, Image as ImageIcon, Copy, Check, Save, Maximize2 } from 'lucide-react';
+import { CheckCircle, Loader2, FileText, Calendar, ExternalLink, Image as ImageIcon, Copy, Check, Save, Maximize2, X, Linkedin, Facebook, Instagram } from 'lucide-react';
 import { SocialPost, Platform, PLATFORM_CONFIGS } from '@/types';
 import { fetchSocialPosts, updateSocialPost } from '@/services/airtable';
 import { useToast } from '@/hooks/use-toast';
@@ -136,14 +136,20 @@ export const PostApproval = () => {
   };
 
   const getPlatformIcon = (platform: string) => {
-    const icons: Record<string, string> = {
-      twitter: '🐦',
-      linkedin: '💼', 
-      instagram: '📸',
-      facebook: '👥',
-      blog: '📝'
-    };
-    return icons[platform.toLowerCase()] || '📱';
+    switch (platform.toLowerCase()) {
+      case 'twitter': return <X className="w-4 h-4 text-gray-900 dark:text-white" />;
+      case 'linkedin': return <Linkedin className="w-4 h-4 text-blue-600" />;
+      case 'facebook': return <Facebook className="w-4 h-4 text-blue-500" />;
+      case 'instagram': return <Instagram className="w-4 h-4 text-pink-500" />;
+      default: return <span className="text-sm">📱</span>;
+    }
+  };
+
+  const getPlatformDisplayName = (platform: string) => {
+    if (platform.toLowerCase() === 'twitter') {
+      return 'X';
+    }
+    return PLATFORM_CONFIGS[platform as Platform]?.name || platform;
   };
 
   const getCharacterCount = (text: string, platform: Platform) => {
@@ -180,8 +186,8 @@ export const PostApproval = () => {
           <div className="p-4 border rounded-lg bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors group">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
-                <span className="text-lg">{getPlatformIcon(platform)}</span>
-                <Label className="font-medium">{config.name}</Label>
+                {getPlatformIcon(platform)}
+                <Label className="font-medium">{getPlatformDisplayName(platform)}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <span className={`text-xs ${charData.isOver ? 'text-destructive' : 'text-muted-foreground'}`}>
@@ -198,8 +204,8 @@ export const PostApproval = () => {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
-              <span className="text-lg">{getPlatformIcon(platform)}</span>
-              <span>{config.name} Content</span>
+              {getPlatformIcon(platform)}
+              <span>{getPlatformDisplayName(platform)} Content</span>
             </DialogTitle>
             <DialogDescription>
               <div className="flex items-center justify-between">
