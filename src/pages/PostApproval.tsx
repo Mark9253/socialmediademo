@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle, Loader2, FileText, Calendar, ExternalLink, Image as ImageIcon, Copy, Check, Save } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { CheckCircle, Loader2, FileText, Calendar, ExternalLink, Image as ImageIcon, Copy, Check, Save, Maximize2 } from 'lucide-react';
 import { SocialPost, Platform, PLATFORM_CONFIGS } from '@/types';
 import { fetchSocialPosts, updateSocialPost } from '@/services/airtable';
 import { useToast } from '@/hooks/use-toast';
@@ -174,36 +175,60 @@ export const PostApproval = () => {
     if (!content) return null;
 
     return (
-      <div key={platform} className="p-4 border rounded-lg bg-muted/30">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <span className="text-lg">{getPlatformIcon(platform)}</span>
-            <Label className="font-medium">{config.name}</Label>
+      <Dialog key={platform}>
+        <DialogTrigger asChild>
+          <div className="p-4 border rounded-lg bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors group">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-lg">{getPlatformIcon(platform)}</span>
+                <Label className="font-medium">{config.name}</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className={`text-xs ${charData.isOver ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {charData.count}/{charData.max}
+                </span>
+                <Maximize2 className="w-3 h-3 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </div>
+            </div>
+            <div className="text-sm text-foreground line-clamp-3 overflow-hidden">
+              {content}
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <span className={`text-xs ${charData.isOver ? 'text-destructive' : 'text-muted-foreground'}`}>
-              {charData.count}/{charData.max}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => copyToClipboard(content, copyId)}
-              className="h-6 w-6 p-0"
-            >
-              {copiedItems.has(copyId) ? (
-                <Check className="w-3 h-3 text-success" />
-              ) : (
-                <Copy className="w-3 h-3" />
-              )}
-            </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <span className="text-lg">{getPlatformIcon(platform)}</span>
+              <span>{config.name} Content</span>
+            </DialogTitle>
+            <DialogDescription>
+              <div className="flex items-center justify-between">
+                <span>Character count: {charData.count}/{charData.max}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(content, copyId)}
+                  className="h-8"
+                >
+                  {copiedItems.has(copyId) ? (
+                    <Check className="w-4 h-4 text-success mr-2" />
+                  ) : (
+                    <Copy className="w-4 h-4 mr-2" />
+                  )}
+                  Copy Content
+                </Button>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <Textarea
+              value={content}
+              readOnly
+              className="min-h-[200px] resize-none text-sm bg-background"
+            />
           </div>
-        </div>
-        <Textarea
-          value={content}
-          readOnly
-          className="min-h-[100px] resize-none text-sm bg-background"
-        />
-      </div>
+        </DialogContent>
+      </Dialog>
     );
   };
 
