@@ -43,6 +43,8 @@ export const createSocialPost = async (postData: Omit<SocialPost, 'ID'>): Promis
 export const updateSocialPost = async (id: string, updates: Partial<SocialPost>): Promise<SocialPost> => {
   try {
     console.log('Updating post:', id, 'with updates:', updates);
+    console.log('Base ID:', AIRTABLE_CONFIG.baseId);
+    console.log('Table name:', AIRTABLE_CONFIG.tables.socialPosts);
     const url = `${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.socialPosts}/${id}`;
     console.log('Making PATCH request to:', url);
     
