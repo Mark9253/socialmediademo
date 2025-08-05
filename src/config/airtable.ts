@@ -1,5 +1,5 @@
 export const AIRTABLE_CONFIG = {
-  apiKey: 'pat1INllzM738f3Nn.baffa47224643fa0969770ed16feba8862bae24105dde8d3f4eb54358af78b52',
+  apiKey: 'patsrvUSbWBAV6VKa.374aad5ae547e3e255b662039d0d6f4e1c6e9f8445779a18ec482447e0d852c6',
   baseId: 'app5wXeTKO82lfUBd', // Updated with your actual base ID
   tableIds: {
     socialPosts: 'tblZwA0JCNPeORaGi', // From your URL
