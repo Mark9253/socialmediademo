@@ -301,20 +301,16 @@ export const ContentGenerator = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="existing" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="existing" className="flex items-center space-x-2">
-              <Sparkles className="w-4 h-4" />
-              <span>Generate New Post</span>
-            </TabsTrigger>
-            <TabsTrigger value="generate" className="flex items-center space-x-2">
-              <FileText className="w-4 h-4" />
-              <span>Create From Source</span>
-            </TabsTrigger>
-          </TabsList>
+        <div className="w-full">
+          <div className="mb-6">
+            <div className="flex items-center space-x-2 p-2 rounded-lg bg-primary-light w-fit">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="font-medium text-primary">Generate New Post</span>
+            </div>
+          </div>
 
-          {/* Generate Tab */}
-          <TabsContent value="generate" className="space-y-6">
+          {/* Generate Content */}
+          <div className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Source Content */}
               <Card>
@@ -502,10 +498,8 @@ export const ContentGenerator = () => {
                 </CardContent>
               </Card>
             </form>
-          </TabsContent>
 
-          {/* Existing Content Tab */}
-          <TabsContent value="existing" className="space-y-6">
+            {/* Existing Content */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -1071,8 +1065,8 @@ export const ContentGenerator = () => {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
     </Layout>
   );
