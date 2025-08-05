@@ -7,7 +7,8 @@ import {
   Palette,
   CheckCircle,
   Menu,
-  X
+  X,
+  Lightbulb
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Content Generator', href: '/generator', icon: Sparkles },
+  { name: 'Content Ideas', href: '/ideas', icon: Lightbulb },
   { name: 'Post Approval', href: '/approval', icon: CheckCircle },
   { name: 'Brand Guidelines', href: '/guidelines', icon: Palette },
   { name: 'Writing Prompts', href: '/prompts', icon: FileText },
