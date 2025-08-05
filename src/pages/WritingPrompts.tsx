@@ -40,7 +40,8 @@ export const WritingPrompts = () => {
           'Blog', 
           'YouTube Shorts Description',
           'Pinterest Description',
-          'YouTube Shorts Title'
+          'YouTube Shorts Title',
+          'Pinterest Title'
         ];
         
         const filteredPrompts = data.filter(prompt => 
