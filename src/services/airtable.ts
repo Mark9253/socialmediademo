@@ -42,14 +42,25 @@ export const createSocialPost = async (postData: Omit<SocialPost, 'ID'>): Promis
 
 export const updateSocialPost = async (id: string, updates: Partial<SocialPost>): Promise<SocialPost> => {
   try {
-    const response = await fetch(`${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.socialPosts}/${id}`, {
+    console.log('Updating post:', id, 'with updates:', updates);
+    const url = `${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.socialPosts}/${id}`;
+    console.log('Making PATCH request to:', url);
+    
+    const response = await fetch(url, {
       method: 'PATCH',
       headers: getHeaders(),
       body: JSON.stringify({
         fields: updates
       })
     });
+    
+    console.log('Response status:', response.status);
     const data = await response.json();
+    console.log('Response data:', data);
+    
+    if (!response.ok) {
+      throw new Error(`Airtable API error: ${response.status} - ${JSON.stringify(data)}`);
+    }
     
     return {
       ID: data.id,
