@@ -14,7 +14,7 @@ interface FormData {
   articleUrl: string;
 }
 
-const N8N_FORM_URL = 'https://n8n.srv886259.hstgr.cloud/webhook-test/775c6dad-671c-4ca3-b570-cad32af393f0';
+const N8N_FORM_URL = 'https://n8n.srv886259.hstgr.cloud/webhook/775c6dad-671c-4ca3-b570-cad32af393f0';
 
 export const ContentIdeas = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
