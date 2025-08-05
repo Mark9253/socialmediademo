@@ -20,9 +20,10 @@ export interface SocialPost {
 }
 
 export interface BrandGuideline {
-  guidelines: string;
-  imageStyle: string;
-  stylePrompt: string;
+  guidelines?: string;
+  Guidelines?: string; // Capital G for Airtable field
+  imageStyle?: string;
+  stylePrompt?: string;
   recordId?: string;
 }
 

@@ -36,13 +36,18 @@ export const BrandGuidelines = () => {
         const data = await fetchBrandGuidelines();
         
         // Find the main guidelines record (record 1)
-        const mainRecord = data.find(record => record.guidelines);
+        const mainRecord = data.find(record => record.Guidelines || record.guidelines);
         if (mainRecord) {
-          setMainGuidelines(mainRecord);
+          setMainGuidelines({
+            guidelines: mainRecord.Guidelines || mainRecord.guidelines || '',
+            imageStyle: mainRecord.imageStyle || '',
+            stylePrompt: mainRecord.stylePrompt || '',
+            recordId: mainRecord.recordId || ''
+          });
         }
         
         // Find image style records (records 2-6)
-        const styleRecords = data.filter(record => record.imageStyle && !record.guidelines);
+        const styleRecords = data.filter(record => record.imageStyle && !record.Guidelines && !record.guidelines);
         setImageStyles(styleRecords.map(record => ({
           recordId: record.recordId || '',
           imageStyle: record.imageStyle,
@@ -86,7 +91,7 @@ export const BrandGuidelines = () => {
       // Save main guidelines if changed
       if (changeSets.has(mainGuidelines.recordId || 'main') && mainGuidelines.recordId) {
         await updateBrandGuidelines(mainGuidelines.recordId, {
-          guidelines: mainGuidelines.guidelines,
+          Guidelines: mainGuidelines.guidelines, // Use capital G for Airtable
           imageStyle: mainGuidelines.imageStyle,
           stylePrompt: mainGuidelines.stylePrompt
         });
@@ -98,7 +103,7 @@ export const BrandGuidelines = () => {
           const styleRecord = imageStyles.find(style => style.recordId === recordId);
           if (styleRecord) {
             await updateBrandGuidelines(recordId, {
-              guidelines: '',
+              Guidelines: '', // Use capital G for Airtable
               imageStyle: styleRecord.imageStyle,
               stylePrompt: styleRecord.stylePrompt
             });
