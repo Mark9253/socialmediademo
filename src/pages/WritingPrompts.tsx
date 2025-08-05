@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Plus, Trash2, Save, Loader2, Edit3 } from 'lucide-react';
+import { FileText, Plus, Trash2, Save, Loader2, Edit3, Twitter, Linkedin, Facebook, Instagram, Mail } from 'lucide-react';
 import { WritingPrompt, Platform, PLATFORM_CONFIGS } from '@/types';
 import { 
   fetchWritingPrompts, 
@@ -303,19 +303,31 @@ export const WritingPrompts = () => {
                 </Button>
               </CardContent>
             </Card>
-          ) : (
-            prompts.map((prompt, index) => {
-              const platformConfig = PLATFORM_CONFIGS[prompt.channel as Platform];
-              const isLoading = savingIds.has(prompt.id || `temp-${index}`);
-              
-              return (
+           ) : (
+             prompts.map((prompt, index) => {
+               const platformConfig = PLATFORM_CONFIGS[prompt.channel as Platform];
+               const isLoading = savingIds.has(prompt.id || `temp-${index}`);
+               
+               // Get platform-specific icon
+               const getPlatformIcon = () => {
+                 switch (prompt.channel.toLowerCase()) {
+                   case 'linkedin': return <Linkedin className="w-5 h-5 text-blue-600" />;
+                   case 'facebook': return <Facebook className="w-5 h-5 text-blue-500" />;
+                   case 'twitter': return <Twitter className="w-5 h-5 text-blue-400" />;
+                   case 'instagram': return <Instagram className="w-5 h-5 text-pink-500" />;
+                   case 'newsletter': return <Mail className="w-5 h-5 text-green-600" />;
+                   default: return <FileText className="w-5 h-5 text-accent-foreground" />;
+                 }
+               };
+               
+               return (
                 <Card key={prompt.id || `new-${index}`} className="relative">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-lg bg-accent">
-                          <FileText className="w-5 h-5 text-accent-foreground" />
-                        </div>
+                         <div className="p-2 rounded-lg bg-accent">
+                           {getPlatformIcon()}
+                         </div>
                         <div>
                           <CardTitle className="text-lg">
                             {prompt.isEditing ? (
@@ -334,10 +346,11 @@ export const WritingPrompts = () => {
                                   ))}
                                 </SelectContent>
                               </Select>
-                            ) : (
-                              <span className="flex items-center space-x-2">
-                                <span>{platformConfig?.name || prompt.channel}</span>
-                              </span>
+                             ) : (
+                               <span className="flex items-center space-x-2">
+                                 {getPlatformIcon()}
+                                 <span>{platformConfig?.name || prompt.channel}</span>
+                               </span>
                             )}
                           </CardTitle>
                         </div>
