@@ -48,7 +48,23 @@ export const WritingPrompts = () => {
           !excludedChannels.includes(prompt.channel)
         );
         
-        setPrompts(filteredPrompts);
+        // Define the desired order
+        const channelOrder = ['LinkedIn', 'Facebook', 'Twitter', 'Instagram', 'Newsletter'];
+        
+        // Sort prompts according to the desired order
+        const sortedPrompts = filteredPrompts.sort((a, b) => {
+          const aIndex = channelOrder.indexOf(a.channel);
+          const bIndex = channelOrder.indexOf(b.channel);
+          
+          // If channel not found in order, put it at the end
+          if (aIndex === -1 && bIndex === -1) return 0;
+          if (aIndex === -1) return 1;
+          if (bIndex === -1) return -1;
+          
+          return aIndex - bIndex;
+        });
+        
+        setPrompts(sortedPrompts);
       } catch (error) {
         console.error('Failed to load writing prompts:', error);
         toast({
