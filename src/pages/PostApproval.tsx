@@ -73,7 +73,9 @@ export const PostApproval = () => {
       });
 
       // If status is no longer "Needs Approval", remove from list
+      console.log('Checking if should remove post:', newStatus, 'includes needs approval:', newStatus.toLowerCase().includes('needs approval'));
       if (!newStatus.toLowerCase().includes('needs approval')) {
+        console.log('Removing post from approval list:', postId);
         setPosts(prev => prev.filter(post => post.ID !== postId));
       }
       
