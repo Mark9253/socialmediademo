@@ -38,7 +38,11 @@ export const ContentGenerator = () => {
     const loadPosts = async () => {
       try {
         const data = await fetchSocialPosts();
-        setPosts(data);
+        // Filter only posts that are waiting for content
+        const waitingForContentPosts = data.filter(post => 
+          post.Status && post.Status.toLowerCase().includes('waiting for content')
+        );
+        setPosts(waitingForContentPosts);
       } catch (error) {
         console.error('Failed to load posts:', error);
         toast({
