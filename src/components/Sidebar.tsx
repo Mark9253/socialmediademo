@@ -32,11 +32,13 @@ export const Sidebar = () => {
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-border">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-primary-foreground" />
-          </div>
+          <img 
+            src="/lovable-uploads/31ba5e2c-d963-4d6a-9a7b-05737ff17640.png" 
+            alt="Up-stride Logo" 
+            className="w-8 h-8 object-contain"
+          />
           <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
-            ContentCraft
+            Up-stride
           </h1>
         </div>
         <Button
