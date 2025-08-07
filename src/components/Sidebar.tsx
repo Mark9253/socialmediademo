@@ -8,7 +8,8 @@ import {
   CheckCircle,
   Menu,
   X,
-  Lightbulb
+  Lightbulb,
+  Send
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Content Ideas', href: '/ideas', icon: Lightbulb },
   { name: 'Content Generator', href: '/generator', icon: Sparkles },
   { name: 'Post Approval', href: '/approval', icon: CheckCircle },
+  { name: 'Publishing Queue', href: '/queue', icon: Send },
   { name: 'Brand Guidelines', href: '/guidelines', icon: Palette },
   { name: 'Writing Prompts', href: '/prompts', icon: FileText },
 ];

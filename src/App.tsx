@@ -8,6 +8,7 @@ import { ContentGenerator } from "./pages/ContentGenerator";
 import { BrandGuidelines } from "./pages/BrandGuidelines";
 import { WritingPrompts } from "./pages/WritingPrompts";
 import { PostApproval } from "./pages/PostApproval";
+import { PublishedQueue } from "./pages/PublishedQueue";
 import { ContentIdeas } from "./pages/ContentIdeas";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/guidelines" element={<BrandGuidelines />} />
           <Route path="/prompts" element={<WritingPrompts />} />
           <Route path="/approval" element={<PostApproval />} />
+          <Route path="/queue" element={<PublishedQueue />} />
           <Route path="/ideas" element={<ContentIdeas />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
