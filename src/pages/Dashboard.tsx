@@ -75,7 +75,7 @@ export const Dashboard = () => {
               </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-primary-hover to-accent bg-clip-text text-transparent mb-4">
-              Dashboard
+              Social Media HQ
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Your all-in-one social media content engine for business success
