@@ -42,31 +42,25 @@ export const MarketingShorts = () => {
     setIsSubmitting(true);
     
     try {
-      // Try both formatted names and simple field names for n8n compatibility
-      const formData = new FormData();
-      
-      // Try simple field names first (n8n often uses these)
-      formData.append('Company URL', data.companyUrl || '');
-      formData.append('Product', data.product || '');
-      formData.append('Target Audience', data.targetAudience || '');
-      formData.append('Name', data.name || '');
-      formData.append('Email Address', data.email || '');
-      formData.append('Company Name', data.companyName || '');
-      formData.append('Campaign Style', data.campaignStyle || '');
+      // Try sending as JSON to n8n webhook
+      const payload = {
+        'Company URL': data.companyUrl || '',
+        'Product': data.product || '',
+        'Target Audience': data.targetAudience || '',
+        'Name': data.name || '',
+        'Email Address': data.email || '',
+        'Company Name': data.companyName || '',
+        'Campaign Style': data.campaignStyle || ''
+      };
 
-      console.log('Sending to n8n:', {
-        'Company URL': data.companyUrl,
-        'Product': data.product,
-        'Target Audience': data.targetAudience,
-        'Name': data.name,
-        'Email Address': data.email,
-        'Company Name': data.companyName,
-        'Campaign Style': data.campaignStyle
-      });
+      console.log('Sending JSON to n8n:', payload);
 
       const response = await fetch(MARKETING_SHORTS_WEBHOOK_URL, {
         method: 'POST',
-        body: formData // Send FormData instead of JSON
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
