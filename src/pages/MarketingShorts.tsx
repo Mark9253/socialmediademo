@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Zap, Target, Users, Briefcase, ExternalLink } from 'lucide-react';
-import { fetchMarketingVideoFolders } from '@/services/airtable';
-import { MarketingVideoFolder } from '@/types';
+import { Zap, Target, Users, Briefcase } from 'lucide-react';
 
 interface MarketingShortsFormData {
   companyUrl: string;
@@ -21,11 +19,10 @@ interface MarketingShortsFormData {
   campaignStyle: string;
 }
 
-const MARKETING_SHORTS_WEBHOOK_URL = 'https://up-stride.app.n8n.cloud/form/3ecf1193-969e-4f35-bb4c-d9523ae5c9e0';
+const MARKETING_SHORTS_WEBHOOK_URL = 'https://up-stride.app.n8n.cloud/form-test/3ecf1193-969e-4f35-bb4c-d9523ae5c9e0';
 
 export const MarketingShorts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [marketingFolders, setMarketingFolders] = useState<MarketingVideoFolder[]>([]);
   const { toast } = useToast();
   
   const { register, handleSubmit, reset, formState: { errors } } = useForm<MarketingShortsFormData>({
@@ -40,18 +37,6 @@ export const MarketingShorts = () => {
     }
   });
 
-  useEffect(() => {
-    const loadMarketingFolders = async () => {
-      try {
-        const folders = await fetchMarketingVideoFolders();
-        setMarketingFolders(folders);
-      } catch (error) {
-        console.error('Error loading marketing folders:', error);
-      }
-    };
-    
-    loadMarketingFolders();
-  }, []);
 
   const onSubmit = async (data: MarketingShortsFormData) => {
     setIsSubmitting(true);
@@ -306,46 +291,6 @@ export const MarketingShorts = () => {
               </CardContent>
             </Card>
 
-            {marketingFolders.length > 0 && (
-              <Card className="mt-8 shadow-xl border-primary/20">
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    Marketing Video Folders
-                  </CardTitle>
-                  <CardDescription className="text-base">
-                    Access your generated marketing content folders
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {marketingFolders.map((folder, index) => (
-                      <div key={folder.recordId || index} className="flex items-center justify-between p-4 border rounded-lg bg-gradient-to-r from-background to-primary/5 hover:shadow-md transition-all duration-300">
-                        <div>
-                          <h3 className="font-medium text-lg">{folder.name || `Marketing Folder ${index + 1}`}</h3>
-                          <p className="text-sm text-muted-foreground">Google Drive Folder</p>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          asChild
-                          className="bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20 border-primary/30"
-                        >
-                          <a 
-                            href={folder['Marketing Shorts Folder']} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2"
-                          >
-                            Open Folder
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
         </div>
       </div>
