@@ -19,7 +19,11 @@ export const fetchSocialPosts = async (): Promise<SocialPost[]> => {
     
     return data.records.map((record: any) => ({
       ID: record.id, // Airtable record ID
-      ...record.fields
+      ...record.fields,
+      // Ensure socialChannels is properly formatted
+      socialChannels: Array.isArray(record.fields.socialChannels) 
+        ? record.fields.socialChannels.join(', ') 
+        : record.fields.socialChannels
     }));
   } catch (error) {
     console.error('Error fetching social posts:', error);

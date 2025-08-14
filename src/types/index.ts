@@ -4,7 +4,7 @@ export interface SocialPost {
   sourceSummary: string;
   goToArticle: string | { label?: string; url?: string }; // Can be string or object
   sourceURL: string | { label?: string; url?: string }; // Can be string or object
-  socialChannels: string;
+  socialChannels: string | string[]; // Can be string or array depending on source
   'needsImage?': string; // Airtable field with question mark
   imageSize: string;
   twitterCopy: string;
