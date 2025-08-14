@@ -9,7 +9,8 @@ import {
   Menu,
   X,
   Lightbulb,
-  Send
+  Send,
+  Plus
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Content Ideas', href: '/ideas', icon: Lightbulb },
   { name: 'Content Generator', href: '/generator', icon: Sparkles },
+  { name: 'Create Post', href: '/create', icon: Plus },
   { name: 'Post for Approval', href: '/approval', icon: CheckCircle },
   { name: 'Publishing Queue', href: '/queue', icon: Send },
   { name: 'Brand Guidelines', href: '/guidelines', icon: Palette },
