@@ -12,16 +12,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Plus, Loader2, X, Linkedin, Facebook, Instagram, Image as ImageIcon, Link as LinkIcon, Upload, CheckCircle } from 'lucide-react';
+import { Loader2, X, Linkedin, Facebook, Instagram, Image as ImageIcon, Upload, CheckCircle } from 'lucide-react';
 import { Platform, PLATFORM_CONFIGS } from '@/types';
 import { createSocialPost } from '@/services/airtable';
 import { useToast } from '@/hooks/use-toast';
 
 const createPostSchema = z.object({
-  sourceHeadline: z.string().min(1, 'Headline is required'),
-  sourceSummary: z.string().min(1, 'Summary is required'),
-  sourceURL: z.string().url('Please enter a valid URL'),
-  goToArticle: z.string().url('Please enter a valid URL'),
   imageType: z.enum(['none', 'upload', 'url']),
   imageUrl: z.string().optional(),
   twitterCopy: z.string().optional(),
@@ -42,10 +38,6 @@ export const CreatePost = () => {
   const form = useForm<CreatePostForm>({
     resolver: zodResolver(createPostSchema),
     defaultValues: {
-      sourceHeadline: '',
-      sourceSummary: '',
-      sourceURL: '',
-      goToArticle: '',
       imageType: 'none',
       imageUrl: '',
       twitterCopy: '',
@@ -115,15 +107,30 @@ export const CreatePost = () => {
       return;
     }
 
+    // Check if at least one platform has content
+    const hasContent = selectedPlatforms.some(platform => {
+      const content = data[`${platform}Copy` as keyof CreatePostForm] as string;
+      return content && content.trim().length > 0;
+    });
+
+    if (!hasContent) {
+      toast({
+        title: "No Content",
+        description: "Please add content for at least one selected platform.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       // Prepare the post data
       const postData = {
-        sourceHeadline: data.sourceHeadline,
-        sourceSummary: data.sourceSummary,
-        sourceURL: data.sourceURL,
-        goToArticle: data.goToArticle,
+        sourceHeadline: 'Manual Post', // Default for manual posts
+        sourceSummary: 'User created post', // Default for manual posts
+        sourceURL: '', // Empty for manual posts
+        goToArticle: '', // Empty for manual posts
         socialChannels: selectedPlatforms.join(', '),
         twitterCopy: data.twitterCopy || '',
         linkedinCopy: data.linkedinCopy || '',
@@ -182,88 +189,15 @@ export const CreatePost = () => {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
-            Create New Post
+            Create Your Own Post
           </h1>
           <p className="text-muted-foreground mt-2">
-            Create engaging content for your social media platforms
+            Create and schedule your own social media content
           </p>
         </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* Source Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Source Information</CardTitle>
-                <CardDescription>
-                  Basic information about the content source
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="sourceHeadline"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Headline</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter a compelling headline..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="sourceSummary"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Summary</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Provide a detailed summary of the content..."
-                          className="min-h-[100px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="sourceURL"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Source URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://example.com/source" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="goToArticle"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Article URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://example.com/article" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Platform Selection */}
             <Card>
               <CardHeader>
@@ -289,6 +223,64 @@ export const CreatePost = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Platform Content */}
+            {selectedPlatforms.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Content</CardTitle>
+                  <CardDescription>
+                    Create your content for each selected platform
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue={selectedPlatforms[0]} className="w-full">
+                    <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+                      {selectedPlatforms.map((platform) => (
+                        <TabsTrigger key={platform} value={platform} className="flex items-center space-x-1">
+                          {getPlatformIcon(platform)}
+                          <span>{PLATFORM_CONFIGS[platform].name}</span>
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+
+                    {selectedPlatforms.map((platform) => (
+                      <TabsContent key={platform} value={platform} className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name={`${platform}Copy` as keyof CreatePostForm}
+                          render={({ field }) => {
+                            const charData = getCharacterCount((field.value as string) || '', platform);
+                            return (
+                              <FormItem>
+                                <div className="flex items-center justify-between mb-2">
+                                  <FormLabel className="flex items-center space-x-2">
+                                    {getPlatformIcon(platform)}
+                                    <span>{PLATFORM_CONFIGS[platform].name} Content</span>
+                                  </FormLabel>
+                                  <Badge variant={charData.isOver ? "destructive" : "secondary"}>
+                                    {charData.count}/{charData.max}
+                                  </Badge>
+                                </div>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder={`Write your ${PLATFORM_CONFIGS[platform].name} post here...`}
+                                    className="min-h-[120px]"
+                                    {...field}
+                                    value={field.value as string || ''}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Image Upload */}
             <Card>
@@ -395,64 +387,6 @@ export const CreatePost = () => {
                 )}
               </CardContent>
             </Card>
-
-            {/* Platform Content */}
-            {selectedPlatforms.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Platform Content</CardTitle>
-                  <CardDescription>
-                    Customize your content for each selected platform
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Tabs defaultValue={selectedPlatforms[0]} className="w-full">
-                    <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-                      {selectedPlatforms.map((platform) => (
-                        <TabsTrigger key={platform} value={platform} className="flex items-center space-x-1">
-                          {getPlatformIcon(platform)}
-                          <span>{PLATFORM_CONFIGS[platform].name}</span>
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
-
-                    {selectedPlatforms.map((platform) => (
-                      <TabsContent key={platform} value={platform} className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name={`${platform}Copy` as keyof CreatePostForm}
-                          render={({ field }) => {
-                            const charData = getCharacterCount((field.value as string) || '', platform);
-                            return (
-                              <FormItem>
-                                <div className="flex items-center justify-between mb-2">
-                                  <FormLabel className="flex items-center space-x-2">
-                                    {getPlatformIcon(platform)}
-                                    <span>{PLATFORM_CONFIGS[platform].name} Content</span>
-                                  </FormLabel>
-                                  <Badge variant={charData.isOver ? "destructive" : "secondary"}>
-                                    {charData.count}/{charData.max}
-                                  </Badge>
-                                </div>
-                                <FormControl>
-                                  <Textarea
-                                    placeholder={`Write engaging content for ${PLATFORM_CONFIGS[platform].name}...`}
-                                    className="min-h-[120px]"
-                                    {...field}
-                                    value={field.value as string || ''}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            );
-                          }}
-                        />
-                      </TabsContent>
-                    ))}
-                  </Tabs>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Submit Button */}
             <div className="flex justify-end">
