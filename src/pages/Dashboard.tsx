@@ -211,62 +211,6 @@ export const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Recent Posts */}
-          <div className="max-w-6xl mx-auto">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-secondary rounded-3xl blur-2xl opacity-30 group-hover:opacity-40 transition-opacity duration-300"></div>
-              <Card className="relative bg-card/90 backdrop-blur-md border-0 shadow-2xl">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Recent Posts</CardTitle>
-                  <CardDescription className="text-lg">
-                    Your latest content generation activities
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className="space-y-3">
-                      {[...Array(3)].map((_, i) => (
-                        <div key={i} className="h-16 bg-muted animate-pulse rounded-lg" />
-                      ))}
-                    </div>
-                  ) : recentPosts.length > 0 ? (
-                    <div className="space-y-4">
-                      {recentPosts.map((post) => (
-                        <div key={post.ID} className="flex items-center justify-between p-4 border rounded-xl hover:bg-accent/50 transition-colors">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-foreground truncate">
-                              {post.sourceHeadline}
-                            </h4>
-                            <div className="flex items-center space-x-2 mt-1">
-                              <Badge className={getStatusColor(post.Status)}>
-                                {post.Status}
-                              </Badge>
-                              <span className="text-sm text-muted-foreground">
-                                {post.socialChannels}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {post.Created && new Date(post.Created).toLocaleDateString()}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Sparkles className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-lg text-muted-foreground mb-4">No posts yet. Generate your first content!</p>
-                      <Link to="/generator">
-                        <Button className="h-12 text-lg px-8">
-                          Create Your First Post
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
         </div>
       </div>
     </Layout>
