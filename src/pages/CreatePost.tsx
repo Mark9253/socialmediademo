@@ -34,6 +34,7 @@ export const CreatePost = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const form = useForm<CreatePostForm>({
     resolver: zodResolver(createPostSchema),
@@ -57,15 +58,50 @@ export const CreatePost = () => {
     );
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
+  const handleFileSelect = (file: File) => {
+    if (file && file.type.startsWith('image/')) {
       setUploadedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+    } else if (file) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select an image file (PNG, JPG, GIF, etc.)",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileSelect(file);
     }
   };
 
@@ -323,7 +359,17 @@ export const CreatePost = () => {
 
                 {imageType === 'upload' && (
                   <div className="space-y-4">
-                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                    <div 
+                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                        isDragOver 
+                          ? 'border-primary bg-primary/5' 
+                          : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => document.getElementById('file-upload')?.click()}
+                    >
                       <input
                         type="file"
                         accept="image/*"
@@ -331,12 +377,13 @@ export const CreatePost = () => {
                         className="hidden"
                         id="file-upload"
                       />
-                      <Label htmlFor="file-upload" className="cursor-pointer">
-                        <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">
-                          Click to upload an image or drag and drop
-                        </p>
-                      </Label>
+                      <Upload className={`w-8 h-8 mx-auto mb-2 ${isDragOver ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <p className={`text-sm ${isDragOver ? 'text-primary' : 'text-muted-foreground'}`}>
+                        {isDragOver ? 'Drop your image here' : 'Click to upload an image or drag and drop'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Supports PNG, JPG, GIF and other image formats
+                      </p>
                     </div>
                     {uploadedFile && (
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
