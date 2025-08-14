@@ -44,16 +44,22 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Try sending as URL-encoded form data
+      // Try multiple formats to debug the issue
       const params = new URLSearchParams();
       params.append('Topics to Research', data.topicsToResearch || '');
       params.append('Article URL', data.articleUrl || '');
       
-      console.log('Sending as URLSearchParams:', {
+      // Also try without spaces
+      params.append('topicsToResearch', data.topicsToResearch || '');
+      params.append('articleUrl', data.articleUrl || '');
+      
+      console.log('Form data being sent:', {
         'Topics to Research': data.topicsToResearch || '',
-        'Article URL': data.articleUrl || ''
+        'Article URL': data.articleUrl || '',
+        'topicsToResearch': data.topicsToResearch || '',
+        'articleUrl': data.articleUrl || ''
       });
-      console.log('URLSearchParams string:', params.toString());
+      console.log('Raw URLSearchParams:', params.toString());
       
       const response = await fetch(N8N_FORM_URL, {
         method: 'POST',
