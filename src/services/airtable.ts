@@ -29,11 +29,14 @@ export const fetchSocialPosts = async (): Promise<SocialPost[]> => {
 
 export const createSocialPost = async (postData: Omit<SocialPost, 'ID'>): Promise<SocialPost> => {
   try {
+    // Remove computed fields that Airtable doesn't accept
+    const { goToArticle, ...fieldsToSend } = postData;
+    
     const response = await fetch(`${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.socialPosts}`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
-        fields: postData
+        fields: fieldsToSend
       })
     });
     const data = await response.json();

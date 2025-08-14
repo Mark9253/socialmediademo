@@ -130,7 +130,7 @@ export const CreatePost = () => {
         sourceHeadline: 'Manual Post', // Default for manual posts
         sourceSummary: 'User created post', // Default for manual posts
         sourceURL: '', // Empty for manual posts
-        goToArticle: '', // Empty for manual posts
+        goToArticle: '', // This field is computed in Airtable, so we send empty string
         socialChannels: selectedPlatforms.join(', '),
         twitterCopy: data.twitterCopy || '',
         linkedinCopy: data.linkedinCopy || '',
