@@ -21,12 +21,12 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Content Ideas', href: '/ideas', icon: Lightbulb },
   { name: 'Content Generator', href: '/generator', icon: Sparkles },
-  { name: 'Marketing Shots', href: '/marketing-shots', icon: Zap },
   // { name: 'Create Post', href: '/create', icon: Plus }, // Temporarily hidden
   { name: 'Post for Approval', href: '/approval', icon: CheckCircle },
   { name: 'Publishing Queue', href: '/queue', icon: Send },
   { name: 'Brand Guidelines', href: '/guidelines', icon: Palette },
   { name: 'Writing Prompts', href: '/prompts', icon: FileText },
+  { name: 'Marketing Shorts', href: '/marketing-shorts', icon: Zap },
 ];
 
 export const Sidebar = () => {

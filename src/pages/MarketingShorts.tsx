@@ -11,7 +11,7 @@ import { Zap, Target, Users, Briefcase, ExternalLink } from 'lucide-react';
 import { fetchMarketingVideoFolders } from '@/services/airtable';
 import { MarketingVideoFolder } from '@/types';
 
-interface MarketingShotsFormData {
+interface MarketingShortsFormData {
   companyUrl: string;
   product: string;
   targetAudience: string;
@@ -21,13 +21,13 @@ interface MarketingShotsFormData {
   campaignStyle: string;
 }
 
-const MARKETING_SHOTS_WEBHOOK_URL = 'https://up-stride.app.n8n.cloud/form/3ecf1193-969e-4f35-bb4c-d9523ae5c9e0';
+const MARKETING_SHORTS_WEBHOOK_URL = 'https://up-stride.app.n8n.cloud/form/3ecf1193-969e-4f35-bb4c-d9523ae5c9e0';
 
-export const MarketingShots = () => {
+export const MarketingShorts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [marketingFolders, setMarketingFolders] = useState<MarketingVideoFolder[]>([]);
   
-  const form = useForm<MarketingShotsFormData>({
+  const form = useForm<MarketingShortsFormData>({
     defaultValues: {
       companyUrl: '',
       product: '',
@@ -52,11 +52,11 @@ export const MarketingShots = () => {
     loadMarketingFolders();
   }, []);
 
-  const onSubmit = async (data: MarketingShotsFormData) => {
+  const onSubmit = async (data: MarketingShortsFormData) => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch(MARKETING_SHOTS_WEBHOOK_URL, {
+      const response = await fetch(MARKETING_SHORTS_WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,13 +65,13 @@ export const MarketingShots = () => {
       });
 
       if (response.ok) {
-        toast.success('Marketing shot request submitted successfully!');
+        toast.success('Marketing shorts request submitted successfully!');
         form.reset();
       } else {
         throw new Error('Failed to submit request');
       }
     } catch (error) {
-      console.error('Error submitting marketing shots request:', error);
+      console.error('Error submitting marketing shorts request:', error);
       toast.error('Failed to submit request. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -99,7 +99,7 @@ export const MarketingShots = () => {
                 </div>
               </div>
               <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-primary-hover to-accent bg-clip-text text-transparent mb-4">
-                Marketing Shots
+                Marketing Shorts
               </h1>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 Create high-impact marketing campaigns tailored to your brand
@@ -153,7 +153,7 @@ export const MarketingShots = () => {
             <Card className="shadow-xl border-primary/20">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Marketing Shot Request
+                  Marketing Shorts Request
                 </CardTitle>
                 <CardDescription className="text-base">
                   Fill out the form below to get started with your custom marketing campaign
@@ -317,7 +317,7 @@ export const MarketingShots = () => {
                           Submitting...
                         </div>
                       ) : (
-                        'Submit Marketing Shot Request'
+                        'Submit Marketing Shorts Request'
                       )}
                     </Button>
                   </form>
