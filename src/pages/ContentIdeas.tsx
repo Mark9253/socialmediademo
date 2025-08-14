@@ -44,20 +44,20 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Try sending as simple key-value pairs that match n8n form field structure
-      const payload = {
-        'topics-to-research': data.topicsToResearch || '',
-        'article-url': data.articleUrl || ''
-      };
+      // Try the exact same format as a regular HTML form would send
+      const formData = new FormData();
+      formData.append('field_0', data.topicsToResearch || '');
+      formData.append('field_1', data.articleUrl || '');
       
-      console.log('Sending form data with simplified field names:', payload);
+      console.log('Trying with generic field names field_0 and field_1');
+      console.log('Values being sent:', {
+        field_0: data.topicsToResearch || '',
+        field_1: data.articleUrl || ''
+      });
       
       const response = await fetch(N8N_FORM_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(payload)
+        body: formData
       });
 
       if (response.ok) {
