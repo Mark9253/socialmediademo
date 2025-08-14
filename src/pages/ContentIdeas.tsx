@@ -44,20 +44,19 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Use exact field names from n8n (with spaces and capitalization)
-      const formData = {
-        "Topics to Research": data.topicsToResearch || '',
-        "Article URL": data.articleUrl || ''
-      };
+      // Try using FormData which is often expected by n8n forms
+      const formData = new FormData();
+      formData.append('Topics to Research', data.topicsToResearch || '');
+      formData.append('Article URL', data.articleUrl || '');
       
-      console.log('Sending form data with exact n8n field names:', formData);
+      console.log('Sending form data as FormData with exact n8n field names:', {
+        'Topics to Research': data.topicsToResearch || '',
+        'Article URL': data.articleUrl || ''
+      });
       
       const response = await fetch(N8N_FORM_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
+        body: formData // Don't set Content-Type header, let browser set it for FormData
       });
 
       if (response.ok) {
