@@ -44,19 +44,20 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Try using FormData which is often expected by n8n forms
-      const formData = new FormData();
-      formData.append('Topics to Research', data.topicsToResearch || '');
-      formData.append('Article URL', data.articleUrl || '');
+      // Try sending as simple key-value pairs that match n8n form field structure
+      const payload = {
+        'topics-to-research': data.topicsToResearch || '',
+        'article-url': data.articleUrl || ''
+      };
       
-      console.log('Sending form data as FormData with exact n8n field names:', {
-        'Topics to Research': data.topicsToResearch || '',
-        'Article URL': data.articleUrl || ''
-      });
+      console.log('Sending form data with simplified field names:', payload);
       
       const response = await fetch(N8N_FORM_URL, {
         method: 'POST',
-        body: formData // Don't set Content-Type header, let browser set it for FormData
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(payload)
       });
 
       if (response.ok) {
