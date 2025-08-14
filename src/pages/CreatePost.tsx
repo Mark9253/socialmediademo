@@ -174,22 +174,21 @@ export const CreatePost = () => {
         facebookCopy: data.facebookCopy || '',
         blogCopy: '', // Default empty blog copy
         imagePrompt: '', // Default empty image prompt
-        postImage: '', // Default empty, will be updated below if needed
+        postImage: '', // Default empty
         Status: 'Needs Approval', // Default status
         'needsImage?': imageType !== 'none' ? 'Yes' : 'No',
-        imageSize: 'Standard', // Default size
+        imageSize: '', // Leave empty to avoid permission issues
       };
 
       // Handle image based on type
       if (imageType === 'url' && data.imageUrl) {
         (postData as any).imageurl = data.imageUrl;
       } else if (imageType === 'upload' && uploadedFile) {
-        // For file uploads, we'll store a placeholder for now
-        // In a real implementation, you'd upload to a file storage service first
-        postData.postImage = `Uploaded file: ${uploadedFile.name}`;
+        // For file uploads, we'll leave postImage empty since we can't upload directly to Airtable
+        // The user would need to set up proper file storage integration
         toast({
           title: "Note",
-          description: "File upload functionality requires additional setup. The filename has been saved.",
+          description: "File upload requires additional setup. Post created without image attachment.",
           variant: "default"
         });
       }
