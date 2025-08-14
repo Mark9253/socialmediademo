@@ -29,7 +29,7 @@ const App = () => (
           <Route path="/approval" element={<PostApproval />} />
           <Route path="/queue" element={<PublishedQueue />} />
           <Route path="/ideas" element={<ContentIdeas />} />
-          <Route path="/create" element={<CreatePost />} />
+          {/* <Route path="/create" element={<CreatePost />} /> */} {/* Temporarily hidden */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
