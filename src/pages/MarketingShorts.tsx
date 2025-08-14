@@ -56,12 +56,19 @@ export const MarketingShorts = () => {
     setIsSubmitting(true);
     
     try {
+      // Use FormData instead of JSON for n8n webhook compatibility
+      const formData = new FormData();
+      formData.append('companyUrl', data.companyUrl || '');
+      formData.append('product', data.product || '');
+      formData.append('targetAudience', data.targetAudience || '');
+      formData.append('name', data.name || '');
+      formData.append('email', data.email || '');
+      formData.append('companyName', data.companyName || '');
+      formData.append('campaignStyle', data.campaignStyle || '');
+
       const response = await fetch(MARKETING_SHORTS_WEBHOOK_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
+        body: formData // Send FormData instead of JSON
       });
 
       if (response.ok) {
