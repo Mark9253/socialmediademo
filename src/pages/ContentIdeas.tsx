@@ -44,15 +44,14 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Try the exact same format as a regular HTML form would send
+      // Use the EXACT field names from the n8n form HTML: field-0 and field-1 (with hyphens)
       const formData = new FormData();
-      formData.append('field_0', data.topicsToResearch || '');
-      formData.append('field_1', data.articleUrl || '');
+      formData.append('field-0', data.topicsToResearch || '');
+      formData.append('field-1', data.articleUrl || '');
       
-      console.log('Trying with generic field names field_0 and field_1');
-      console.log('Values being sent:', {
-        field_0: data.topicsToResearch || '',
-        field_1: data.articleUrl || ''
+      console.log('Using correct n8n field names with hyphens:', {
+        'field-0': data.topicsToResearch || '',
+        'field-1': data.articleUrl || ''
       });
       
       const response = await fetch(N8N_FORM_URL, {
