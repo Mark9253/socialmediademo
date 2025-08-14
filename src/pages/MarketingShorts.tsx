@@ -19,7 +19,7 @@ interface MarketingShortsFormData {
   campaignStyle: string;
 }
 
-const MARKETING_SHORTS_WEBHOOK_URL = 'https://up-stride.app.n8n.cloud/form-test/3ecf1193-969e-4f35-bb4c-d9523ae5c9e0';
+const MARKETING_SHORTS_WEBHOOK_URL = 'https://up-stride.app.n8n.cloud/form/3ecf1193-969e-4f35-bb4c-d9523ae5c9e0';
 
 export const MarketingShorts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,8 +42,10 @@ export const MarketingShorts = () => {
     setIsSubmitting(true);
     
     try {
-      // Use FormData with exact field names that match the n8n workflow
+      // Try both formatted names and simple field names for n8n compatibility
       const formData = new FormData();
+      
+      // Try simple field names first (n8n often uses these)
       formData.append('Company URL', data.companyUrl || '');
       formData.append('Product', data.product || '');
       formData.append('Target Audience', data.targetAudience || '');
@@ -52,7 +54,7 @@ export const MarketingShorts = () => {
       formData.append('Company Name', data.companyName || '');
       formData.append('Campaign Style', data.campaignStyle || '');
 
-      console.log('Sending to n8n with correct field names:', {
+      console.log('Sending to n8n:', {
         'Company URL': data.companyUrl,
         'Product': data.product,
         'Target Audience': data.targetAudience,
