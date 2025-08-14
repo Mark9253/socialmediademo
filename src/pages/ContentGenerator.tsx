@@ -255,13 +255,17 @@ export const ContentGenerator = () => {
     setSavingPosts(prev => new Set([...prev, postId]));
 
     try {
-      // Format the edits for Airtable - convert socialChannels string to array
+      // Format the edits for Airtable - convert socialChannels string to array with proper capitalization
       const formattedEdits = { ...edits };
       if (formattedEdits.socialChannels && typeof formattedEdits.socialChannels === 'string') {
-        // Convert "twitter, facebook" to ["twitter", "facebook"]
+        // Convert "twitter, facebook" to ["Twitter", "Facebook"] with proper capitalization
         formattedEdits.socialChannels = formattedEdits.socialChannels
           .split(',')
-          .map(channel => channel.trim())
+          .map(channel => {
+            const trimmed = channel.trim();
+            // Capitalize first letter to match Airtable's expected format
+            return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+          })
           .filter(channel => channel.length > 0);
       }
 
