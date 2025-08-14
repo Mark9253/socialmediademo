@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Zap, Target, Users, Briefcase, ExternalLink } from 'lucide-react';
 import { fetchMarketingVideoFolders } from '@/services/airtable';
@@ -27,7 +27,7 @@ export const MarketingShorts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [marketingFolders, setMarketingFolders] = useState<MarketingVideoFolder[]>([]);
   
-  const form = useForm<MarketingShortsFormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<MarketingShortsFormData>({
     defaultValues: {
       companyUrl: '',
       product: '',
@@ -83,15 +83,7 @@ export const MarketingShorts = () => {
 
       if (response.ok) {
         toast.success('Marketing shorts request submitted successfully!');
-        form.reset({
-          companyUrl: '',
-          product: '',
-          targetAudience: '',
-          name: '',
-          email: '',
-          companyName: '',
-          campaignStyle: ''
-        });
+        reset();
       } else {
         throw new Error('Failed to submit request');
       }
@@ -186,167 +178,123 @@ export const MarketingShorts = () => {
               </CardHeader>
               
               <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="companyUrl"
-                      rules={{ required: 'Company URL is required' }}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Company URL *</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="https://your-company.com" 
-                              {...field} 
-                              className="transition-all duration-200 focus:border-primary/50"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="companyUrl">Company URL *</Label>
+                    <Input 
+                      id="companyUrl"
+                      placeholder="https://your-company.com" 
+                      {...register('companyUrl', { required: 'Company URL is required' })}
+                      className="transition-all duration-200 focus:border-primary/50"
                     />
+                    {errors.companyUrl && (
+                      <p className="text-sm text-destructive">{errors.companyUrl.message}</p>
+                    )}
+                  </div>
 
-                    <FormField
-                      control={form.control}
-                      name="product"
-                      rules={{ required: 'Product is required' }}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Product *</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Describe your product or service..."
-                              rows={3}
-                              {...field} 
-                              className="transition-all duration-200 focus:border-primary/50"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  <div className="space-y-2">
+                    <Label htmlFor="product">Product *</Label>
+                    <Textarea 
+                      id="product"
+                      placeholder="Describe your product or service..."
+                      rows={3}
+                      {...register('product', { required: 'Product is required' })}
+                      className="transition-all duration-200 focus:border-primary/50"
                     />
+                    {errors.product && (
+                      <p className="text-sm text-destructive">{errors.product.message}</p>
+                    )}
+                  </div>
 
-                    <FormField
-                      control={form.control}
-                      name="targetAudience"
-                      rules={{ required: 'Target audience is required' }}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Target Audience *</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Describe your target audience..."
-                              rows={3}
-                              {...field} 
-                              className="transition-all duration-200 focus:border-primary/50"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  <div className="space-y-2">
+                    <Label htmlFor="targetAudience">Target Audience *</Label>
+                    <Textarea 
+                      id="targetAudience"
+                      placeholder="Describe your target audience..."
+                      rows={3}
+                      {...register('targetAudience', { required: 'Target audience is required' })}
+                      className="transition-all duration-200 focus:border-primary/50"
                     />
+                    {errors.targetAudience && (
+                      <p className="text-sm text-destructive">{errors.targetAudience.message}</p>
+                    )}
+                  </div>
 
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      rules={{ required: 'Name is required' }}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Name *</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Your full name" 
-                              {...field} 
-                              className="transition-all duration-200 focus:border-primary/50"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name *</Label>
+                    <Input 
+                      id="name"
+                      placeholder="Your full name" 
+                      {...register('name', { required: 'Name is required' })}
+                      className="transition-all duration-200 focus:border-primary/50"
                     />
+                    {errors.name && (
+                      <p className="text-sm text-destructive">{errors.name.message}</p>
+                    )}
+                  </div>
 
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      rules={{ 
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address *</Label>
+                    <Input 
+                      id="email"
+                      type="email"
+                      placeholder="your.email@company.com" 
+                      {...register('email', { 
                         required: 'Email is required',
                         pattern: {
                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                           message: 'Invalid email address'
                         }
-                      }}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address *</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="email"
-                              placeholder="your.email@company.com" 
-                              {...field} 
-                              className="transition-all duration-200 focus:border-primary/50"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      })}
+                      className="transition-all duration-200 focus:border-primary/50"
                     />
+                    {errors.email && (
+                      <p className="text-sm text-destructive">{errors.email.message}</p>
+                    )}
+                  </div>
 
-                    <FormField
-                      control={form.control}
-                      name="companyName"
-                      rules={{ required: 'Company name is required' }}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Company Name *</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Your company name" 
-                              {...field} 
-                              className="transition-all duration-200 focus:border-primary/50"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName">Company Name *</Label>
+                    <Input 
+                      id="companyName"
+                      placeholder="Your company name" 
+                      {...register('companyName', { required: 'Company name is required' })}
+                      className="transition-all duration-200 focus:border-primary/50"
                     />
+                    {errors.companyName && (
+                      <p className="text-sm text-destructive">{errors.companyName.message}</p>
+                    )}
+                  </div>
 
-                    <FormField
-                      control={form.control}
-                      name="campaignStyle"
-                      rules={{ required: 'Campaign style is required' }}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Campaign Style *</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Describe your preferred campaign style..."
-                              rows={3}
-                              {...field} 
-                              className="transition-all duration-200 focus:border-primary/50"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  <div className="space-y-2">
+                    <Label htmlFor="campaignStyle">Campaign Style *</Label>
+                    <Textarea 
+                      id="campaignStyle"
+                      placeholder="Describe your preferred campaign style..."
+                      rows={3}
+                      {...register('campaignStyle', { required: 'Campaign style is required' })}
+                      className="transition-all duration-200 focus:border-primary/50"
                     />
+                    {errors.campaignStyle && (
+                      <p className="text-sm text-destructive">{errors.campaignStyle.message}</p>
+                    )}
+                  </div>
 
-                    <Button 
-                      type="submit" 
-                      disabled={isSubmitting}
-                      className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary-hover hover:to-accent-hover transition-all duration-300 text-lg py-6"
-                    >
-                      {isSubmitting ? (
-                        <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          Submitting...
-                        </div>
-                      ) : (
-                        'Submit Marketing Shorts Request'
-                      )}
-                    </Button>
-                  </form>
-                </Form>
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary-hover hover:to-accent-hover transition-all duration-300 text-lg py-6"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        Submitting...
+                      </div>
+                    ) : (
+                      'Submit Marketing Shorts Request'
+                    )}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
 
