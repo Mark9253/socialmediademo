@@ -78,7 +78,7 @@ export const Dashboard = () => {
               Dashboard
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Welcome back! Track your content performance and manage your social media presence.
+              Your all-in-one social media content engine for business success
             </p>
           </div>
 
