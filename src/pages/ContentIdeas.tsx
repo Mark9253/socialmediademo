@@ -32,17 +32,24 @@ export const ContentIdeas = () => {
         });
       return;
     }
+    
     setIsSubmitting(true);
+    
+    // Prepare the form data payload
+    const formPayload = {
+      'Topics to Research': data.topicsToResearch || '',
+      'Article URL': data.articleUrl || ''
+    };
+    
+    console.log('Submitting form data:', formPayload);
+    
     try {
       const response = await fetch(N8N_FORM_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          'Topics to Research': data.topicsToResearch,
-          'Article URL': data.articleUrl
-        })
+        body: JSON.stringify(formPayload)
       });
 
       if (response.ok) {
