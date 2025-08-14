@@ -1,6 +1,6 @@
 export const AIRTABLE_CONFIG = {
-  apiKey: 'patsrvUSbWBAV6VKa.374aad5ae547e3e255b662039d0d6f4e1c6e9f8445779a18ec482447e0d852c6',
-  baseId: 'appjL3sMnzlJLW9rC', // Updated with correct base ID from your URL
+  apiKey: 'pat5un4mUVSvsbsT5.559b603ed103ab8acda3038829c39eefc2a02d9f4e55ead0d6bac36171b8c644',
+  baseId: 'app5wXeTKO82lfUBd', // Updated with correct base ID from your URL
   tableIds: {
     socialPosts: 'tblZwA0JCNPeORaGi', // From your URL
     brandGuidelines: 'tblBrandGuidelines', // You'll need to provide this
