@@ -44,19 +44,23 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Try sending as FormData instead of JSON
-      const formData = new FormData();
-      formData.append('Topics to Research', data.topicsToResearch || '');
-      formData.append('Article URL', data.articleUrl || '');
+      // Try sending as URL-encoded form data
+      const params = new URLSearchParams();
+      params.append('Topics to Research', data.topicsToResearch || '');
+      params.append('Article URL', data.articleUrl || '');
       
-      console.log('Sending as FormData:', {
+      console.log('Sending as URLSearchParams:', {
         'Topics to Research': data.topicsToResearch || '',
         'Article URL': data.articleUrl || ''
       });
+      console.log('URLSearchParams string:', params.toString());
       
       const response = await fetch(N8N_FORM_URL, {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString()
       });
 
       if (response.ok) {
