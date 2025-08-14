@@ -33,6 +33,12 @@ export interface WritingPrompt {
   id?: string;
 }
 
+export interface MarketingVideoFolder {
+  recordId?: string;
+  'Marketing Shorts Folder': string;
+  name?: string;
+}
+
 export interface ContentGenerationRequest {
   sourceHeadline: string;
   sourceSummary: string;

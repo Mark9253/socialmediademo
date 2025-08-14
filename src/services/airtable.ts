@@ -1,5 +1,5 @@
 import { AIRTABLE_BASE_URL, getHeaders, AIRTABLE_CONFIG } from '@/config/airtable';
-import { SocialPost, BrandGuideline, WritingPrompt } from '@/types';
+import { SocialPost, BrandGuideline, WritingPrompt, MarketingVideoFolder } from '@/types';
 
 // Social Posts
 export const fetchSocialPosts = async (): Promise<SocialPost[]> => {
@@ -230,6 +230,30 @@ export const deleteWritingPrompt = async (id: string): Promise<void> => {
     });
   } catch (error) {
     console.error('Error deleting writing prompt:', error);
+    throw error;
+  }
+};
+
+// Marketing Video Folder API
+export const fetchMarketingVideoFolders = async (): Promise<MarketingVideoFolder[]> => {
+  try {
+    const response = await fetch(`${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.marketingVideoFolder}`, {
+      headers: getHeaders()
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Failed to fetch marketing video folders: ${errorData.error?.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.records.map((record: any) => ({
+      recordId: record.id,
+      'Marketing Shorts Folder': record.fields['Marketing Shorts Folder'] || '',
+      name: record.fields.name || record.fields.Name || ''
+    }));
+  } catch (error) {
+    console.error('Error fetching marketing video folders:', error);
     throw error;
   }
 };

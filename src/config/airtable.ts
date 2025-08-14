@@ -4,12 +4,14 @@ export const AIRTABLE_CONFIG = {
   tableIds: {
     socialPosts: 'tblZwA0JCNPeORaGi', // From your URL
     brandGuidelines: 'tblBrandGuidelines', // You'll need to provide this
-    writingPrompts: 'tblWritingPrompts' // You'll need to provide this
+    writingPrompts: 'tblWritingPrompts', // You'll need to provide this
+    marketingVideoFolder: 'tblMarketingVideoFolder' // You'll need to provide this
   },
   tables: {
     socialPosts: 'Social Posts',
     brandGuidelines: 'Brand Guidelines', 
-    writingPrompts: 'Writing Prompts'
+    writingPrompts: 'Writing Prompts',
+    marketingVideoFolder: 'Marketing Video Folder'
   }
 };
 
