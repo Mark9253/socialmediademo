@@ -255,7 +255,17 @@ export const ContentGenerator = () => {
     setSavingPosts(prev => new Set([...prev, postId]));
 
     try {
-      const updatedPost = await updateSocialPost(postId, edits);
+      // Format the edits for Airtable - convert socialChannels string to array
+      const formattedEdits = { ...edits };
+      if (formattedEdits.socialChannels && typeof formattedEdits.socialChannels === 'string') {
+        // Convert "twitter, facebook" to ["twitter", "facebook"]
+        formattedEdits.socialChannels = formattedEdits.socialChannels
+          .split(',')
+          .map(channel => channel.trim())
+          .filter(channel => channel.length > 0);
+      }
+
+      const updatedPost = await updateSocialPost(postId, formattedEdits);
       
       // Update the posts state with the new data
       setPosts(prev => prev.map(post => 
@@ -585,12 +595,12 @@ export const ContentGenerator = () => {
                                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                           Saving Changes...
                                         </>
-                                      ) : (
-                                        <>
-                                          <Check className="w-4 h-4 mr-2" />
-                                          Save Changes to Airtable
-                                        </>
-                                      )}
+                                       ) : (
+                                         <>
+                                           <Check className="w-4 h-4 mr-2" />
+                                           Submit
+                                         </>
+                                       )}
                                     </Button>
                                   </div>
                                 )}
