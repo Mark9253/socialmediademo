@@ -44,22 +44,16 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Try multiple formats to debug the issue
+      // Send with simple field names that n8n typically expects
       const params = new URLSearchParams();
-      params.append('Topics to Research', data.topicsToResearch || '');
-      params.append('Article URL', data.articleUrl || '');
+      params.append('topics', data.topicsToResearch || '');
+      params.append('url', data.articleUrl || '');
       
-      // Also try without spaces
-      params.append('topicsToResearch', data.topicsToResearch || '');
-      params.append('articleUrl', data.articleUrl || '');
-      
-      console.log('Form data being sent:', {
-        'Topics to Research': data.topicsToResearch || '',
-        'Article URL': data.articleUrl || '',
-        'topicsToResearch': data.topicsToResearch || '',
-        'articleUrl': data.articleUrl || ''
+      console.log('Sending simplified form data:', {
+        'topics': data.topicsToResearch || '',
+        'url': data.articleUrl || ''
       });
-      console.log('Raw URLSearchParams:', params.toString());
+      console.log('URLSearchParams:', params.toString());
       
       const response = await fetch(N8N_FORM_URL, {
         method: 'POST',
