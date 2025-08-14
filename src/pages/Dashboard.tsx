@@ -38,9 +38,9 @@ export const Dashboard = () => {
 
   const stats = {
     total: posts.length,
-    published: posts.filter(p => p.Status === 'Published').length,
+    awaitingApproval: posts.filter(p => p.Status === 'Draft' || p.Status === 'Pending Review').length,
     scheduled: posts.filter(p => p.Status === 'Scheduled').length,
-    draft: posts.filter(p => p.Status === 'Draft').length
+    published: posts.filter(p => p.Status === 'Published').length
   };
 
   const recentPosts = posts.slice(0, 5);
@@ -161,15 +161,39 @@ export const Dashboard = () => {
           </div>
 
           {/* Stats */}
-          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
             <Card className="bg-card/80 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Posts</p>
+                    <p className="text-sm font-medium text-muted-foreground">Content Generator Records</p>
                     <p className="text-3xl font-bold">{stats.total}</p>
                   </div>
                   <TrendingUp className="w-10 h-10 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/80 backdrop-blur-sm border border-warning/20 hover:border-warning/40 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Awaiting Approval</p>
+                    <p className="text-3xl font-bold text-warning">{stats.awaitingApproval}</p>
+                  </div>
+                  <Clock className="w-10 h-10 text-warning" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/80 backdrop-blur-sm border border-accent/20 hover:border-accent/40 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Scheduled to Publish</p>
+                    <p className="text-3xl font-bold text-accent-foreground">{stats.scheduled}</p>
+                  </div>
+                  <Calendar className="w-10 h-10 text-accent-foreground" />
                 </div>
               </CardContent>
             </Card>
@@ -182,30 +206,6 @@ export const Dashboard = () => {
                     <p className="text-3xl font-bold text-success">{stats.published}</p>
                   </div>
                   <CheckCircle className="w-10 h-10 text-success" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/80 backdrop-blur-sm border border-warning/20 hover:border-warning/40 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Scheduled</p>
-                    <p className="text-3xl font-bold text-warning">{stats.scheduled}</p>
-                  </div>
-                  <Clock className="w-10 h-10 text-warning" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/80 backdrop-blur-sm border border-muted/40 hover:border-muted/60 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Drafts</p>
-                    <p className="text-3xl font-bold text-muted-foreground">{stats.draft}</p>
-                  </div>
-                  <Calendar className="w-10 h-10 text-muted-foreground" />
                 </div>
               </CardContent>
             </Card>
