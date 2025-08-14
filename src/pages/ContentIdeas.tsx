@@ -44,14 +44,14 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Try using the exact field names as they appear in n8n form element
+      // Try using field names without spaces (common n8n pattern)
       const formData = new FormData();
-      formData.append('Topics to Research', data.topicsToResearch || '');
-      formData.append('Article URL', data.articleUrl || '');
+      formData.append('topics_to_research', data.topicsToResearch || '');
+      formData.append('article_url', data.articleUrl || '');
       
-      console.log('Sending form data as FormData:', {
-        'Topics to Research': data.topicsToResearch || '',
-        'Article URL': data.articleUrl || ''
+      console.log('Sending form data with underscore field names:', {
+        'topics_to_research': data.topicsToResearch || '',
+        'article_url': data.articleUrl || ''
       });
       
       const response = await fetch(N8N_FORM_URL, {
