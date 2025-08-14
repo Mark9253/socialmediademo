@@ -44,19 +44,23 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Try using field names without spaces (common n8n pattern)
-      const formData = new FormData();
-      formData.append('topics_to_research', data.topicsToResearch || '');
-      formData.append('article_url', data.articleUrl || '');
+      // Try using the simplest possible field names
+      const params = new URLSearchParams();
+      params.append('field_0', data.topicsToResearch || '');
+      params.append('field_1', data.articleUrl || '');
       
-      console.log('Sending form data with underscore field names:', {
-        'topics_to_research': data.topicsToResearch || '',
-        'article_url': data.articleUrl || ''
+      console.log('Sending form data with field indexes:', {
+        'field_0': data.topicsToResearch || '',
+        'field_1': data.articleUrl || ''
       });
+      console.log('URLSearchParams:', params.toString());
       
       const response = await fetch(N8N_FORM_URL, {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString()
       });
 
       if (response.ok) {
