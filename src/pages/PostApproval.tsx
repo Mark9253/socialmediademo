@@ -270,7 +270,7 @@ export const PostApproval = () => {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
-            Post Approval
+            Post for Approval
           </h1>
           <p className="text-muted-foreground mt-2">
             Review and approve posts that are ready for publishing
