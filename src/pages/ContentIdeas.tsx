@@ -44,23 +44,20 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Try using the simplest possible field names
-      const params = new URLSearchParams();
-      params.append('field_0', data.topicsToResearch || '');
-      params.append('field_1', data.articleUrl || '');
+      // Use exact field names from n8n (with spaces and capitalization)
+      const formData = {
+        "Topics to Research": data.topicsToResearch || '',
+        "Article URL": data.articleUrl || ''
+      };
       
-      console.log('Sending form data with field indexes:', {
-        'field_0': data.topicsToResearch || '',
-        'field_1': data.articleUrl || ''
-      });
-      console.log('URLSearchParams:', params.toString());
+      console.log('Sending form data with exact n8n field names:', formData);
       
       const response = await fetch(N8N_FORM_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: params.toString()
+        body: JSON.stringify(formData)
       });
 
       if (response.ok) {
