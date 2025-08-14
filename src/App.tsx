@@ -10,6 +10,7 @@ import { WritingPrompts } from "./pages/WritingPrompts";
 import { PostApproval } from "./pages/PostApproval";
 import { PublishedQueue } from "./pages/PublishedQueue";
 import { ContentIdeas } from "./pages/ContentIdeas";
+import { MarketingShots } from "./pages/MarketingShots";
 import { CreatePost } from "./pages/CreatePost";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/approval" element={<PostApproval />} />
           <Route path="/queue" element={<PublishedQueue />} />
           <Route path="/ideas" element={<ContentIdeas />} />
+          <Route path="/marketing-shots" element={<MarketingShots />} />
           {/* <Route path="/create" element={<CreatePost />} /> */} {/* Temporarily hidden */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
