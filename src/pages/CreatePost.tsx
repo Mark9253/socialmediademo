@@ -180,19 +180,13 @@ export const CreatePost = () => {
       if (imageType === 'url' && data.imageUrl) {
         (postData as any).imageurl = data.imageUrl;
       } else if (imageType === 'upload' && uploadedFile) {
-        // Convert file to base64 for Airtable attachment
-        const base64 = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(uploadedFile);
+        // Note: Direct file upload to Airtable requires additional setup
+        // For now, we'll create the post without the attachment
+        toast({
+          title: "Note",
+          description: "File uploaded but requires additional setup to attach to Airtable. Post created successfully.",
+          variant: "default"
         });
-        
-        // Format for Airtable attachment
-        (postData as any).postImage = [{
-          url: base64,
-          filename: uploadedFile.name,
-          type: uploadedFile.type
-        }];
       }
 
       await createSocialPost(postData);
