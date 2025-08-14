@@ -5,7 +5,7 @@ export const AIRTABLE_CONFIG = {
     socialPosts: 'tblZwA0JCNPeORaGi', // From your URL
     brandGuidelines: 'tblBrandGuidelines', // You'll need to provide this
     writingPrompts: 'tblWritingPrompts', // You'll need to provide this
-    marketingVideoFolder: 'tblMarketingVideoFolder' // You'll need to provide this
+    marketingVideoFolder: 'tblPO6cEWeKXpo1Rs' // Marketing Video Folder table
   },
   tables: {
     socialPosts: 'Social Posts',
