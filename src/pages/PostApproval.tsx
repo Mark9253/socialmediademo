@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,10 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CheckCircle, Loader2, FileText, Calendar, ExternalLink, Image as ImageIcon, Copy, Check, Save, Maximize2, X, Linkedin, Facebook, Instagram } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
+import { CheckCircle, Loader2, FileText, Calendar, ExternalLink, Image as ImageIcon, Copy, Check, Save, Maximize2, X, Linkedin, Facebook, Instagram, CalendarIcon, Clock } from 'lucide-react';
 import { SocialPost, Platform, PLATFORM_CONFIGS } from '@/types';
 import { fetchSocialPosts, updateSocialPost } from '@/services/airtable';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export const PostApproval = () => {
   const { toast } = useToast();
@@ -19,6 +24,8 @@ export const PostApproval = () => {
   const [updatingPosts, setUpdatingPosts] = useState<Set<string>>(new Set());
   const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
   const [statusChanges, setStatusChanges] = useState<Map<string, string>>(new Map());
+  const [scheduledDates, setScheduledDates] = useState<Map<string, Date>>(new Map());
+  const [scheduledTimes, setScheduledTimes] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -58,8 +65,22 @@ export const PostApproval = () => {
     setUpdatingPosts(prev => new Set([...prev, postId]));
     
     try {
-      console.log('About to call updateSocialPost with:', postId, { Status: newStatus });
-      const updatedPost = await updateSocialPost(postId, { Status: newStatus });
+      // Prepare update data
+      const updateData: Partial<SocialPost> = { Status: newStatus };
+      
+      // Add scheduled date/time if provided
+      const scheduledDate = scheduledDates.get(postId);
+      const scheduledTime = scheduledTimes.get(postId);
+      
+      if (scheduledDate && scheduledTime) {
+        const [hours, minutes] = scheduledTime.split(':');
+        const dateTime = new Date(scheduledDate);
+        dateTime.setHours(parseInt(hours), parseInt(minutes));
+        updateData.datePosted = dateTime.toISOString();
+      }
+      
+      console.log('About to call updateSocialPost with:', postId, updateData);
+      const updatedPost = await updateSocialPost(postId, updateData);
       console.log('updateSocialPost returned:', updatedPost);
       
       // Update the post in the local state
@@ -67,8 +88,18 @@ export const PostApproval = () => {
         post.ID === postId ? { ...post, Status: newStatus } : post
       ));
 
-      // Clear the status change for this post
+      // Clear the status change and scheduled time for this post
       setStatusChanges(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(postId);
+        return newMap;
+      });
+      setScheduledDates(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(postId);
+        return newMap;
+      });
+      setScheduledTimes(prev => {
         const newMap = new Map(prev);
         newMap.delete(postId);
         return newMap;
@@ -132,6 +163,30 @@ export const PostApproval = () => {
 
   const hasStatusChange = (postId: string) => {
     return statusChanges.has(postId);
+  };
+
+  const handleDateChange = (postId: string, date: Date | undefined) => {
+    if (date) {
+      setScheduledDates(prev => new Map(prev.set(postId, date)));
+    } else {
+      setScheduledDates(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(postId);
+        return newMap;
+      });
+    }
+  };
+
+  const handleTimeChange = (postId: string, time: string) => {
+    setScheduledTimes(prev => new Map(prev.set(postId, time)));
+  };
+
+  const getScheduledDate = (postId: string) => {
+    return scheduledDates.get(postId);
+  };
+
+  const getScheduledTime = (postId: string) => {
+    return scheduledTimes.get(postId) || '';
   };
 
   const copyToClipboard = async (text: string, itemId: string) => {
@@ -315,22 +370,64 @@ export const PostApproval = () => {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-1">
-                          <Label className="text-sm font-medium mb-2 block">Update Status</Label>
-                          <Select 
-                            value={getSelectedStatus(post.ID!)} 
-                            onValueChange={(value) => handleStatusChange(post.ID!, value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select new status..." />
-                            </SelectTrigger>
-                            <SelectContent className="bg-background border shadow-lg z-50">
-                              <SelectItem value="Approved">Approved</SelectItem>
-                              <SelectItem value="Needs Approval">Needs Approval</SelectItem>
-                              <SelectItem value="Declined">Declined</SelectItem>
-                            </SelectContent>
-                          </Select>
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-1 space-y-4">
+                          <div>
+                            <Label className="text-sm font-medium mb-2 block">Update Status</Label>
+                            <Select 
+                              value={getSelectedStatus(post.ID!)} 
+                              onValueChange={(value) => handleStatusChange(post.ID!, value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select new status..." />
+                              </SelectTrigger>
+                              <SelectContent className="bg-background border shadow-lg z-50">
+                                <SelectItem value="Approved">Approved</SelectItem>
+                                <SelectItem value="Needs Approval">Needs Approval</SelectItem>
+                                <SelectItem value="Declined">Declined</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          {/* Schedule Date/Time */}
+                          <div className="space-y-3">
+                            <Label className="text-sm font-medium">Schedule Publication (Optional)</Label>
+                            <div className="flex space-x-2">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                      "flex-1 justify-start text-left font-normal",
+                                      !getScheduledDate(post.ID!) && "text-muted-foreground"
+                                    )}
+                                  >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {getScheduledDate(post.ID!) ? format(getScheduledDate(post.ID!)!, "PPP") : <span>Pick a date</span>}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                  <CalendarComponent
+                                    mode="single"
+                                    selected={getScheduledDate(post.ID!)}
+                                    onSelect={(date) => handleDateChange(post.ID!, date)}
+                                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                    initialFocus
+                                    className="p-3 pointer-events-auto"
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                              <div className="flex items-center space-x-1 flex-1">
+                                <Clock className="h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  type="time"
+                                  value={getScheduledTime(post.ID!)}
+                                  onChange={(e) => handleTimeChange(post.ID!, e.target.value)}
+                                  className="flex-1"
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </div>
                         <Button
                           onClick={() => handleStatusUpdate(post.ID!)}
