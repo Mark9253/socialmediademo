@@ -44,14 +44,14 @@ export const ContentIdeas = () => {
     console.log('Submitting form data:', formPayload);
     
     try {
-      // Send with simple field names that n8n typically expects
+      // Send with exact field names from n8n form
       const params = new URLSearchParams();
-      params.append('topics', data.topicsToResearch || '');
-      params.append('url', data.articleUrl || '');
+      params.append('Topics to Research', data.topicsToResearch || '');
+      params.append('Article URL', data.articleUrl || '');
       
-      console.log('Sending simplified form data:', {
-        'topics': data.topicsToResearch || '',
-        'url': data.articleUrl || ''
+      console.log('Sending form data with exact field names:', {
+        'Topics to Research': data.topicsToResearch || '',
+        'Article URL': data.articleUrl || ''
       });
       console.log('URLSearchParams:', params.toString());
       
