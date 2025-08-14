@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { Zap, Target, Users, Briefcase, ExternalLink } from 'lucide-react';
 import { fetchMarketingVideoFolders } from '@/services/airtable';
 import { MarketingVideoFolder } from '@/types';
@@ -26,6 +26,7 @@ const MARKETING_SHORTS_WEBHOOK_URL = 'https://up-stride.app.n8n.cloud/form/3ecf1
 export const MarketingShorts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [marketingFolders, setMarketingFolders] = useState<MarketingVideoFolder[]>([]);
+  const { toast } = useToast();
   
   const { register, handleSubmit, reset, formState: { errors } } = useForm<MarketingShortsFormData>({
     defaultValues: {
@@ -82,14 +83,21 @@ export const MarketingShorts = () => {
       });
 
       if (response.ok) {
-        toast.success('Marketing shorts request submitted successfully!');
+        toast({
+          title: "Success!",
+          description: "Marketing shorts request submitted successfully!",
+        });
         reset();
       } else {
         throw new Error('Failed to submit request');
       }
     } catch (error) {
       console.error('Error submitting marketing shorts request:', error);
-      toast.error('Failed to submit request. Please try again.');
+      toast({
+        title: "Error",
+        description: "Failed to submit request. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
