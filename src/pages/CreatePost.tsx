@@ -161,24 +161,20 @@ export const CreatePost = () => {
     setIsSubmitting(true);
 
     try {
-      // Prepare the post data
-      const postData = {
+      // Prepare the post data - only include non-empty fields to avoid Airtable permission issues
+      const postData: any = {
         sourceHeadline: 'Manual Post', // Default for manual posts
         sourceSummary: 'User created post', // Default for manual posts
-        sourceURL: '', // Empty for manual posts
-        goToArticle: '', // This field is computed in Airtable, so we send empty string
         socialChannels: selectedPlatforms.map(platform => PLATFORM_CONFIGS[platform].name), // Array format for Airtable
-        twitterCopy: data.twitterCopy || '',
-        linkedinCopy: data.linkedinCopy || '',
-        instagramCopy: data.instagramCopy || '',
-        facebookCopy: data.facebookCopy || '',
-        blogCopy: '', // Default empty blog copy
-        imagePrompt: '', // Default empty image prompt
-        postImage: '', // Default empty
         Status: 'Needs Approval', // Default status
         'needsImage?': imageType !== 'none' ? 'Yes' : 'No',
-        imageSize: '', // Leave empty to avoid permission issues
       };
+
+      // Only add content fields that have actual content
+      if (data.twitterCopy) postData.twitterCopy = data.twitterCopy;
+      if (data.linkedinCopy) postData.linkedinCopy = data.linkedinCopy;
+      if (data.instagramCopy) postData.instagramCopy = data.instagramCopy;
+      if (data.facebookCopy) postData.facebookCopy = data.facebookCopy;
 
       // Handle image based on type
       if (imageType === 'url' && data.imageUrl) {
