@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Calendar, ExternalLink, Copy, Check, Maximize2, X, Linkedin, Facebook, Instagram, Send, Clock } from 'lucide-react';
+import { Calendar, ExternalLink, Copy, Check, Maximize2, X, Linkedin, Facebook, Instagram, Send, Clock, CalendarIcon } from 'lucide-react';
 import { SocialPost, Platform, PLATFORM_CONFIGS } from '@/types';
 import { fetchSocialPosts } from '@/services/airtable';
 import { useToast } from '@/hooks/use-toast';
@@ -283,10 +284,29 @@ export const PublishedQueue = () => {
                           )}
                         </div>
                       </div>
-                      <Button variant="default" className="bg-gradient-to-r from-primary to-primary-hover">
-                        <Send className="w-4 h-4 mr-2" />
-                        Publish Now
-                      </Button>
+                      
+                      {/* Scheduled Publication Date/Time */}
+                      <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-lg p-4 min-w-[200px]">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <CalendarIcon className="w-4 h-4 text-primary" />
+                          <Label className="text-sm font-medium text-primary">Scheduled to Publish</Label>
+                        </div>
+                        {post.datePosted ? (
+                          <div className="space-y-1">
+                            <div className="text-sm font-medium text-foreground">
+                              {format(new Date(post.datePosted), 'PPP')}
+                            </div>
+                            <div className="text-xs text-muted-foreground flex items-center space-x-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{format(new Date(post.datePosted), 'p')}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            No schedule set
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
                   
