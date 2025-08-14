@@ -83,7 +83,15 @@ export const MarketingShorts = () => {
 
       if (response.ok) {
         toast.success('Marketing shorts request submitted successfully!');
-        form.reset();
+        form.reset({
+          companyUrl: '',
+          product: '',
+          targetAudience: '',
+          name: '',
+          email: '',
+          companyName: '',
+          campaignStyle: ''
+        });
       } else {
         throw new Error('Failed to submit request');
       }
