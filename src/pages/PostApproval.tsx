@@ -413,19 +413,21 @@ export const PostApproval = () => {
                         )}
 
                         {/* Post Image */}
-                        {post.postImage && (
+                        {(post.postImage || (post as any).imageurl) && (
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Post Image</Label>
                             <div className="mt-2 space-y-2">
                               {(() => {
-                                const imageUrl = typeof post.postImage === 'string' 
+                                // First try imageurl field, then fall back to postImage
+                                const imageUrlFromField = (post as any).imageurl;
+                                const imageUrl = imageUrlFromField || (typeof post.postImage === 'string' 
                                   ? post.postImage 
-                                  : (post.postImage as any)?.url;
+                                  : (post.postImage as any)?.url);
                                 
                                 return imageUrl ? (
                                   <div className="space-y-2">
                                     <div className="w-full max-w-sm">
-                                      <img 
+                                      <img
                                         src={imageUrl} 
                                         alt="Post image"
                                         className="w-full h-auto rounded-lg border shadow-sm"
