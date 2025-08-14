@@ -42,7 +42,11 @@ export const ContentGenerator = () => {
         const waitingForContentPosts = data.filter(post => 
           post.Status && post.Status.toLowerCase().includes('waiting for content')
         );
-        setPosts(waitingForContentPosts);
+        // Sort by created date (most recent first) and take only the first 15
+        const sortedPosts = waitingForContentPosts
+          .sort((a, b) => new Date(b.Created || 0).getTime() - new Date(a.Created || 0).getTime())
+          .slice(0, 15);
+        setPosts(sortedPosts);
       } catch (error) {
         console.error('Failed to load posts:', error);
         toast({
