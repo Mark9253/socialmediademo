@@ -76,7 +76,7 @@ export const PostApproval = () => {
         const [hours, minutes] = scheduledTime.split(':');
         const dateTime = new Date(scheduledDate);
         dateTime.setHours(parseInt(hours), parseInt(minutes));
-        updateData.datePosted = dateTime.toISOString();
+        updateData['Date / Time to Post'] = dateTime.toISOString();
       }
       
       console.log('About to call updateSocialPost with:', postId, updateData);
