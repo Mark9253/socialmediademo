@@ -238,15 +238,23 @@ export const deleteWritingPrompt = async (id: string): Promise<void> => {
 export const fetchMarketingVideoFolders = async (): Promise<MarketingVideoFolder[]> => {
   try {
     const url = `${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tableIds.marketingVideoFolder}`;
-    console.log('Fetching from URL:', url);
+    console.log('=== DEBUGGING MARKETING VIDEO FOLDERS ===');
+    console.log('Base URL:', AIRTABLE_BASE_URL);
     console.log('Table ID:', AIRTABLE_CONFIG.tableIds.marketingVideoFolder);
+    console.log('Full URL:', url);
+    console.log('Headers:', getHeaders());
+    
     const response = await fetch(url, {
       headers: getHeaders()
     });
 
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Failed to fetch marketing video folders: ${errorData.error?.message || response.statusText}`);
+      const errorText = await response.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
