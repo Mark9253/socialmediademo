@@ -237,7 +237,7 @@ export const deleteWritingPrompt = async (id: string): Promise<void> => {
 // Marketing Video Folder API
 export const fetchMarketingVideoFolders = async (): Promise<MarketingVideoFolder[]> => {
   try {
-    const response = await fetch(`${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tables.marketingVideoFolder}`, {
+    const response = await fetch(`${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tableIds.marketingVideoFolder}`, {
       headers: getHeaders()
     });
 
