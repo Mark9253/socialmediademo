@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { FoldersModal } from '@/components/FoldersModal';
 import { Zap, Target, Users, Briefcase } from 'lucide-react';
 
 interface MarketingShortsFormData {
@@ -23,6 +24,7 @@ const MARKETING_SHORTS_WEBHOOK_URL = 'https://up-stride.app.n8n.cloud/form/3ecf1
 
 export const MarketingShorts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showFoldersModal, setShowFoldersModal] = useState(false);
   const { toast } = useToast();
   
   const { register, handleSubmit, reset, formState: { errors } } = useForm<MarketingShortsFormData>({
@@ -141,13 +143,7 @@ export const MarketingShorts = () => {
                 <Button 
                   variant="outline" 
                   className="mt-4 border-accent/30 hover:border-accent/50 hover:bg-accent/10"
-                  onClick={() => {
-                    // TODO: Implement folder list modal or navigation
-                    toast({
-                      title: "Folders",
-                      description: "Folder access feature coming soon!",
-                    });
-                  }}
+                  onClick={() => setShowFoldersModal(true)}
                 >
                   View Folders
                 </Button>
@@ -303,6 +299,11 @@ export const MarketingShorts = () => {
           </div>
         </div>
       </div>
+
+      <FoldersModal 
+        open={showFoldersModal} 
+        onOpenChange={setShowFoldersModal} 
+      />
     </Layout>
   );
 };
