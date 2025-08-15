@@ -196,7 +196,7 @@ export const CreatePost = () => {
       }
 
       // Send to n8n webhook
-      const response = await fetch('https://n8n.srv886259.hstgr.cloud/webhook-test/social-media-post', {
+      const response = await fetch('https://n8n.srv886259.hstgr.cloud/webhook/social-media-post', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
