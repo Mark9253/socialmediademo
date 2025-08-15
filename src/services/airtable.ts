@@ -237,7 +237,7 @@ export const deleteWritingPrompt = async (id: string): Promise<void> => {
 // Marketing Video Folder API
 export const fetchMarketingVideoFolders = async (): Promise<MarketingVideoFolder[]> => {
   try {
-    const url = `${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tableIds.marketingVideoFolder}`;
+    const url = `${AIRTABLE_BASE_URL}/tblPO6cEWeKXpo1Rs`; // Direct table ID
     console.log('=== DEBUGGING MARKETING VIDEO FOLDERS ===');
     console.log('Base URL:', AIRTABLE_BASE_URL);
     console.log('Table ID:', AIRTABLE_CONFIG.tableIds.marketingVideoFolder);
