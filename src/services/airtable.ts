@@ -20,6 +20,8 @@ export const fetchSocialPosts = async (): Promise<SocialPost[]> => {
     return data.records.map((record: any) => ({
       ID: record.id, // Airtable record ID
       ...record.fields,
+      // Map Airtable field "Date / Time to Post" to our datePosted property
+      datePosted: record.fields['Date / Time to Post'] || record.fields.datePosted,
       // Ensure socialChannels is properly formatted
       socialChannels: Array.isArray(record.fields.socialChannels) 
         ? record.fields.socialChannels.join(', ') 
