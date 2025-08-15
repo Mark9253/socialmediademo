@@ -129,15 +129,28 @@ export const MarketingShorts = () => {
               </CardHeader>
             </Card>
 
-            <Card className="group hover:shadow-lg transition-all duration-300 border-accent/20 hover:border-accent/40">
+            <Card className="group hover:shadow-lg transition-all duration-300 border-accent/20 hover:border-accent/40 cursor-pointer">
               <CardHeader className="text-center">
                 <div className="mx-auto w-12 h-12 bg-gradient-to-r from-accent/20 to-accent/30 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Users className="h-6 w-6 text-accent" />
                 </div>
-                <CardTitle className="text-lg">Audience Insights</CardTitle>
+                <CardTitle className="text-lg">Access Folders</CardTitle>
                 <CardDescription>
-                  Deep understanding of your audience to maximize campaign effectiveness
+                  Browse and access your marketing resource folders
                 </CardDescription>
+                <Button 
+                  variant="outline" 
+                  className="mt-4 border-accent/30 hover:border-accent/50 hover:bg-accent/10"
+                  onClick={() => {
+                    // TODO: Implement folder list modal or navigation
+                    toast({
+                      title: "Folders",
+                      description: "Folder access feature coming soon!",
+                    });
+                  }}
+                >
+                  View Folders
+                </Button>
               </CardHeader>
             </Card>
 
