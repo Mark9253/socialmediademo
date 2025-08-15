@@ -258,10 +258,14 @@ export const fetchMarketingVideoFolders = async (): Promise<MarketingVideoFolder
     }
 
     const data = await response.json();
+    console.log('Raw Airtable response:', data);
+    console.log('First record fields:', data.records[0]?.fields);
+    
     return data.records.map((record: any) => ({
       recordId: record.id,
       'Marketing Shorts Folder': record.fields['Marketing Shorts Folder'] || '',
-      name: record.fields.name || record.fields.Name || ''
+      name: record.fields.name || record.fields.Name || record.fields['Marketing Shorts Folder'] || 'Unnamed Folder',
+      url: record.fields.URL || record.fields.url || record.fields.Link || record.fields.link || record.fields['Marketing Shorts Folder'] || ''
     }));
   } catch (error) {
     console.error('Error fetching marketing video folders:', error);
