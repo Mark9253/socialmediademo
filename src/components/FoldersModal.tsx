@@ -13,6 +13,7 @@ interface FoldersModalProps {
 }
 
 export const FoldersModal = ({ open, onOpenChange }: FoldersModalProps) => {
+  console.log('FoldersModal component rendered', { open });
   const [folders, setFolders] = useState<MarketingVideoFolder[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -24,9 +25,12 @@ export const FoldersModal = ({ open, onOpenChange }: FoldersModalProps) => {
   }, [open]);
 
   const loadFolders = async () => {
+    console.log('loadFolders called');
     setLoading(true);
     try {
+      console.log('Calling fetchMarketingVideoFolders...');
       const fetchedFolders = await fetchMarketingVideoFolders();
+      console.log('Fetched folders:', fetchedFolders);
       setFolders(fetchedFolders);
     } catch (error) {
       console.error('Error loading folders:', error);

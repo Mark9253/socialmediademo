@@ -143,7 +143,10 @@ export const MarketingShorts = () => {
                 <Button 
                   variant="outline" 
                   className="mt-4 border-accent/30 hover:border-accent/50 hover:bg-accent/10"
-                  onClick={() => setShowFoldersModal(true)}
+                  onClick={() => {
+                    console.log('View Folders button clicked');
+                    setShowFoldersModal(true);
+                  }}
                 >
                   View Folders
                 </Button>
