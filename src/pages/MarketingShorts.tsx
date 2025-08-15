@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { fetchMarketingVideoFolders } from '@/services/airtable';
-import { MarketingVideoFolder } from '@/types';
-import { Zap, Target, Folder, Briefcase, ExternalLink, Loader2 } from 'lucide-react';
+import { Zap, Folder } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface MarketingShortsFormData {
   companyUrl: string;
@@ -25,8 +24,6 @@ const MARKETING_SHORTS_WEBHOOK_URL = 'https://up-stride.app.n8n.cloud/form/3ecf1
 
 export const MarketingShorts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [folders, setFolders] = useState<MarketingVideoFolder[]>([]);
-  const [loadingFolders, setLoadingFolders] = useState(true);
   const { toast } = useToast();
   
   const { register, handleSubmit, reset, formState: { errors } } = useForm<MarketingShortsFormData>({
@@ -40,41 +37,6 @@ export const MarketingShorts = () => {
       campaignStyle: ''
     }
   });
-
-  // Load folders on component mount
-  useEffect(() => {
-    loadFolders();
-  }, []);
-
-  const loadFolders = async () => {
-    setLoadingFolders(true);
-    try {
-      const fetchedFolders = await fetchMarketingVideoFolders();
-      setFolders(fetchedFolders);
-    } catch (error) {
-      console.error('Error loading folders:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load marketing folders. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingFolders(false);
-    }
-  };
-
-  const handleFolderClick = (folder: MarketingVideoFolder) => {
-    const folderUrl = folder.url || folder['Marketing Shorts Folder'];
-    if (folderUrl && folderUrl.startsWith('http')) {
-      window.open(folderUrl, '_blank');
-    } else {
-      toast({
-        title: "No URL",
-        description: "This folder doesn't have a valid URL configured.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const onSubmit = async (data: MarketingShortsFormData) => {
     setIsSubmitting(true);
@@ -152,104 +114,26 @@ export const MarketingShorts = () => {
           </div>
         </div>
 
-        {/* Marketing Folders Section */}
+        {/* CTA Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
-              Marketing Resource Folders
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Browse and access your marketing resource folders directly
-            </p>
-          </div>
-
-          {loadingFolders ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2 text-muted-foreground">Loading folders...</span>
-            </div>
-          ) : folders.length === 0 ? (
-            <div className="text-center py-12">
-              <Folder className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-muted-foreground">No folders found</h3>
-              <p className="text-sm text-muted-foreground">No marketing folders are currently available.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
-              {folders.map((folder, index) => (
-                <Card 
-                  key={folder.recordId || index}
-                  className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-primary/20 hover:border-primary/40"
-                  onClick={() => handleFolderClick(folder)}
-                >
-                  <CardHeader className="text-center pb-3">
-                    <div className="mx-auto w-12 h-12 bg-gradient-to-r from-primary/20 to-primary/30 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <Folder className="h-6 w-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-lg truncate" title={folder.name || 'Marketing Folder'}>
-                      {folder.name || 'Marketing Folder'}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0 text-center">
-                    <div className="space-y-2">
-                      {(folder.url || folder['Marketing Shorts Folder']) && (
-                        <p className="text-xs text-muted-foreground truncate" title={folder.url || folder['Marketing Shorts Folder']}>
-                          {folder.url || folder['Marketing Shorts Folder']}
-                        </p>
-                      )}
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="border-primary/30 hover:border-primary/50 hover:bg-primary/10"
-                        disabled={!(folder.url || folder['Marketing Shorts Folder'])}
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Open Folder
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Feature Cards */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <Card className="group hover:shadow-lg transition-all duration-300 border-primary/20 hover:border-primary/40">
-              <CardHeader className="text-center">
-                <div className="mx-auto w-12 h-12 bg-gradient-to-r from-primary/20 to-primary/30 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Target className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">Targeted Campaigns</CardTitle>
-                <CardDescription>
-                  Precisely crafted campaigns that resonate with your target audience
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="group hover:shadow-lg transition-all duration-300 border-accent/20 hover:border-accent/40">
+            <Card className="group hover:shadow-lg transition-all duration-300 border-accent/20 hover:border-accent/40 cursor-pointer max-w-md mx-auto">
               <CardHeader className="text-center">
                 <div className="mx-auto w-12 h-12 bg-gradient-to-r from-accent/20 to-accent/30 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Folder className="h-6 w-6 text-accent" />
                 </div>
-                <CardTitle className="text-lg">Resource Access</CardTitle>
+                <CardTitle className="text-lg">Access Marketing Folders</CardTitle>
                 <CardDescription>
-                  Easy access to all your marketing resources and folders above
+                  Browse and access your marketing resource folders
                 </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="group hover:shadow-lg transition-all duration-300 border-secondary/20 hover:border-secondary/40">
-              <CardHeader className="text-center">
-                <div className="mx-auto w-12 h-12 bg-gradient-to-r from-secondary/20 to-secondary/30 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Briefcase className="h-6 w-6 text-secondary" />
-                </div>
-                <CardTitle className="text-lg">Brand Alignment</CardTitle>
-                <CardDescription>
-                  Campaigns that perfectly align with your brand voice and values
-                </CardDescription>
+                <Link to="/marketing-shorts-folders">
+                  <Button 
+                    variant="outline" 
+                    className="mt-4 border-accent/30 hover:border-accent/50 hover:bg-accent/10"
+                  >
+                    View All Folders
+                  </Button>
+                </Link>
               </CardHeader>
             </Card>
           </div>
