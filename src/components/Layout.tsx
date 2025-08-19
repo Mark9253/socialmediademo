@@ -1,21 +1,16 @@
-import { ReactNode } from 'react';
-import { Sidebar } from './Sidebar';
+import { Sidebar } from "@/components/Sidebar";
 
 interface LayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export const Layout = ({ children }: LayoutProps) => {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1">
-          <div className="px-4 py-6 sm:px-6 lg:px-8">
-            {children}
-          </div>
-        </main>
-      </div>
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">
+        {children}
+      </main>
     </div>
   );
 };
