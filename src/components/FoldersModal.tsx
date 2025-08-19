@@ -44,14 +44,13 @@ export const FoldersModal = ({ open, onOpenChange }: FoldersModalProps) => {
     }
   };
 
-  const handleFolderClick = (folder: MarketingVideoFolder) => {
-    const folderUrl = folder.url || folder['Marketing Shorts Folder'];
-    if (folderUrl && folderUrl.startsWith('http')) {
+  const handleFolderClick = (folderUrl: string) => {
+    if (folderUrl) {
       window.open(folderUrl, '_blank');
     } else {
       toast({
         title: "No URL",
-        description: "This folder doesn't have a valid URL configured.",
+        description: "This folder doesn't have a URL configured.",
         variant: "destructive",
       });
     }
@@ -87,7 +86,7 @@ export const FoldersModal = ({ open, onOpenChange }: FoldersModalProps) => {
                 <Card 
                   key={folder.recordId || index}
                   className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-primary/20 hover:border-primary/40"
-                  onClick={() => handleFolderClick(folder)}
+                  onClick={() => handleFolderClick(folder['Marketing Shorts Folder'])}
                 >
                   <CardHeader className="text-center pb-4">
                     <div className="mx-auto w-12 h-12 bg-gradient-to-r from-primary/20 to-primary/30 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -97,26 +96,19 @@ export const FoldersModal = ({ open, onOpenChange }: FoldersModalProps) => {
                       {folder.name || 'Marketing Folder'}
                     </CardTitle>
                     <CardDescription className="text-sm">
-                      {(folder.url || folder['Marketing Shorts Folder']) ? 'Click to access folder' : 'No URL available'}
+                      {folder['Marketing Shorts Folder'] ? 'Click to access folder' : 'No URL available'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-0 text-center">
-                    <div className="space-y-2">
-                      {(folder.url || folder['Marketing Shorts Folder']) && (
-                        <p className="text-xs text-muted-foreground truncate" title={folder.url || folder['Marketing Shorts Folder']}>
-                          {folder.url || folder['Marketing Shorts Folder']}
-                        </p>
-                      )}
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="border-primary/30 hover:border-primary/50 hover:bg-primary/10"
-                        disabled={!(folder.url || folder['Marketing Shorts Folder'])}
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Open Folder
-                      </Button>
-                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="border-primary/30 hover:border-primary/50 hover:bg-primary/10"
+                      disabled={!folder['Marketing Shorts Folder']}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Open Folder
+                    </Button>
                   </CardContent>
                 </Card>
               ))}

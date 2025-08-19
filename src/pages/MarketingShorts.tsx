@@ -7,8 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Zap, Folder } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { fetchMarketingVideoFolders } from '@/services/airtable';
+import { Zap, Target, Users, Briefcase } from 'lucide-react';
 
 interface MarketingShortsFormData {
   companyUrl: string;
@@ -37,6 +37,7 @@ export const MarketingShorts = () => {
       campaignStyle: ''
     }
   });
+
 
   const onSubmit = async (data: MarketingShortsFormData) => {
     setIsSubmitting(true);
@@ -114,26 +115,76 @@ export const MarketingShorts = () => {
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* Feature Cards */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center mb-8">
-            <Card className="group hover:shadow-lg transition-all duration-300 border-accent/20 hover:border-accent/40 cursor-pointer max-w-md mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <Card className="group hover:shadow-lg transition-all duration-300 border-primary/20 hover:border-primary/40">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-12 h-12 bg-gradient-to-r from-primary/20 to-primary/30 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Target className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Targeted Campaigns</CardTitle>
+                <CardDescription>
+                  Precisely crafted campaigns that resonate with your target audience
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="group hover:shadow-lg transition-all duration-300 border-accent/20 hover:border-accent/40 cursor-pointer">
               <CardHeader className="text-center">
                 <div className="mx-auto w-12 h-12 bg-gradient-to-r from-accent/20 to-accent/30 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Folder className="h-6 w-6 text-accent" />
+                  <Users className="h-6 w-6 text-accent" />
                 </div>
-                <CardTitle className="text-lg">Access Marketing Folders</CardTitle>
+                <CardTitle className="text-lg">Access Folders</CardTitle>
                 <CardDescription>
                   Browse and access your marketing resource folders
                 </CardDescription>
-                <Link to="/marketing-shorts-folders">
-                  <Button 
-                    variant="outline" 
-                    className="mt-4 border-accent/30 hover:border-accent/50 hover:bg-accent/10"
-                  >
-                    View All Folders
-                  </Button>
-                </Link>
+                <Button 
+                  variant="outline" 
+                  className="mt-4 border-accent/30 hover:border-accent/50 hover:bg-accent/10"
+                  onClick={async () => {
+                    console.log('View Folders button clicked');
+                    try {
+                      const folders = await fetchMarketingVideoFolders();
+                      console.log('Fetched folders directly:', folders);
+                      
+                      if (folders.length === 0) {
+                        toast({
+                          title: "No Folders",
+                          description: "No marketing folders found in the database.",
+                        });
+                      } else {
+                        // For now, just show first folder URL or list them
+                        const folderList = folders.map(f => f.name || 'Unnamed folder').join(', ');
+                        toast({
+                          title: "Marketing Folders",
+                          description: `Found ${folders.length} folders: ${folderList}`,
+                        });
+                      }
+                    } catch (error) {
+                      console.error('Error fetching folders:', error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to load folders. Check console for details.",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                >
+                  View Folders
+                </Button>
+              </CardHeader>
+            </Card>
+
+            <Card className="group hover:shadow-lg transition-all duration-300 border-secondary/20 hover:border-secondary/40">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-12 h-12 bg-gradient-to-r from-secondary/20 to-secondary/30 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Briefcase className="h-6 w-6 text-secondary" />
+                </div>
+                <CardTitle className="text-lg">Brand Alignment</CardTitle>
+                <CardDescription>
+                  Campaigns that perfectly align with your brand voice and values
+                </CardDescription>
               </CardHeader>
             </Card>
           </div>
