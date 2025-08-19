@@ -37,7 +37,6 @@ export interface MarketingVideoFolder {
   recordId?: string;
   'Marketing Shorts Folder': string;
   name?: string;
-  url?: string;
 }
 
 export interface ContentGenerationRequest {
