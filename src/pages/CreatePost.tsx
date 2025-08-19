@@ -14,7 +14,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, X, Linkedin, Facebook, Instagram, Image as ImageIcon, Upload, CheckCircle } from 'lucide-react';
 import { Platform, PLATFORM_CONFIGS } from '@/types';
-import { createSocialPost } from '@/services/airtable';
 import { useToast } from '@/hooks/use-toast';
 
 const createPostSchema = z.object({
@@ -161,39 +160,57 @@ export const CreatePost = () => {
     setIsSubmitting(true);
 
     try {
-      // Prepare the post data - only include non-empty fields to avoid Airtable permission issues
-      const postData: any = {
-        sourceHeadline: 'Manual Post', // Default for manual posts
-        sourceSummary: 'User created post', // Default for manual posts
-        socialChannels: selectedPlatforms.map(platform => PLATFORM_CONFIGS[platform].name), // Array format for Airtable
-        Status: 'Needs Approval', // Default status
-        'needsImage?': imageType !== 'none' ? 'Yes' : 'No',
+      // Prepare the post data for n8n webhook
+      const postData = {
+        sourceHeadline: 'Manual Post',
+        sourceSummary: 'User created post',
+        socialChannels: selectedPlatforms,
+        needsImage: imageType !== 'none',
+        imageType: imageType,
+        timestamp: new Date().toISOString(),
+        // Platform content
+        content: {
+          twitter: data.twitterCopy || '',
+          linkedin: data.linkedinCopy || '',
+          instagram: data.instagramCopy || '',
+          facebook: data.facebookCopy || '',
+        },
+        // Image data
+        image: {
+          type: imageType,
+          url: imageType === 'url' ? data.imageUrl : null,
+          filename: uploadedFile?.name || null,
+          size: uploadedFile?.size || null,
+          mimeType: uploadedFile?.type || null,
+        } as any
       };
 
-      // Only add content fields that have actual content
-      if (data.twitterCopy) postData.twitterCopy = data.twitterCopy;
-      if (data.linkedinCopy) postData.linkedinCopy = data.linkedinCopy;
-      if (data.instagramCopy) postData.instagramCopy = data.instagramCopy;
-      if (data.facebookCopy) postData.facebookCopy = data.facebookCopy;
-
-      // Handle image based on type
-      if (imageType === 'url' && data.imageUrl) {
-        (postData as any).imageurl = data.imageUrl;
-      } else if (imageType === 'upload' && uploadedFile) {
-        // Note: Direct file upload to Airtable requires additional setup
-        // For now, we'll create the post without the attachment
-        toast({
-          title: "Note",
-          description: "File uploaded but requires additional setup to attach to Airtable. Post created successfully.",
-          variant: "default"
+      // Convert file to base64 if uploading
+      if (imageType === 'upload' && uploadedFile) {
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(uploadedFile);
         });
+        postData.image.base64 = base64;
       }
 
-      await createSocialPost(postData);
+      // Send to n8n webhook
+      const response = await fetch('https://n8n.srv886259.hstgr.cloud/webhook/social-media-post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Webhook failed with status: ${response.status}`);
+      }
 
       toast({
-        title: "Post Created Successfully!",
-        description: "Your post has been created and is waiting for approval.",
+        title: "Post Sent Successfully!",
+        description: "Your post has been sent to the workflow for processing.",
       });
 
       // Reset form
@@ -203,10 +220,10 @@ export const CreatePost = () => {
       setImagePreview(null);
 
     } catch (error) {
-      console.error('Failed to create post:', error);
+      console.error('Failed to send post:', error);
       toast({
-        title: "Creation Failed",
-        description: "Could not create the post. Please try again.",
+        title: "Send Failed",
+        description: "Could not send the post to the workflow. Please try again.",
         variant: "destructive"
       });
     } finally {
