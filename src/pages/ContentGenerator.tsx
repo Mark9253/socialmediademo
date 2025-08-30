@@ -41,7 +41,14 @@ export const ContentGenerator = () => {
     try {
       setLoading(true);
       const fetchedPosts = await fetchSocialPosts();
-      const waitingPosts = fetchedPosts.filter(post => post.Status === 'Waiting for Content');
+      const waitingPosts = fetchedPosts
+        .filter(post => post.Status === 'Waiting for Content')
+        .sort((a, b) => {
+          // Sort by creation date, newest first
+          const dateA = new Date(a.Created || 0);
+          const dateB = new Date(b.Created || 0);
+          return dateB.getTime() - dateA.getTime();
+        });
       setPosts(waitingPosts);
     } catch (error) {
       console.error('Error loading posts:', error);
