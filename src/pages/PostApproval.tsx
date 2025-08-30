@@ -31,10 +31,14 @@ export const PostApproval = () => {
     const loadPosts = async () => {
       try {
         const data = await fetchSocialPosts();
-        // Filter only posts that need approval
-        const needsApprovalPosts = data.filter(post => 
-          post.Status && post.Status.toLowerCase() === 'needs approval'
-        );
+        // Filter only posts that need approval and sort by creation date (newest first)
+        const needsApprovalPosts = data
+          .filter(post => post.Status && post.Status.toLowerCase() === 'needs approval')
+          .sort((a, b) => {
+            const dateA = new Date(a.Created || 0);
+            const dateB = new Date(b.Created || 0);
+            return dateB.getTime() - dateA.getTime(); // Newest first
+          });
         setPosts(needsApprovalPosts);
       } catch (error) {
         console.error('Failed to load posts:', error);
