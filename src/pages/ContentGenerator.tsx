@@ -25,7 +25,7 @@ export const ContentGenerator = () => {
     goToArticle: '',
     socialChannels: [],
     needsImage: false,
-    imageSize: 'square'
+    imageSize: 'Square (1:1)'
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [posts, setPosts] = useState<SocialPost[]>([]);
@@ -110,7 +110,7 @@ export const ContentGenerator = () => {
         goToArticle: '',
         socialChannels: [],
         needsImage: false,
-        imageSize: 'square'
+        imageSize: 'Square (1:1)'
       });
       
     } catch (error) {
@@ -566,7 +566,7 @@ export const ContentGenerator = () => {
                                        <Select
                                          value={(() => {
                                            const edits = editingPosts.get(post.ID!);
-                                           return edits?.imageSize || post.imageSize || 'square';
+                                           return edits?.imageSize || post.imageSize || 'Square (1:1)';
                                          })()}
                                          onValueChange={(value) => {
                                            handleImageSizeChange(post.ID!, value);
@@ -575,11 +575,11 @@ export const ContentGenerator = () => {
                                          <SelectTrigger className="mt-1 h-8 text-xs">
                                            <SelectValue />
                                          </SelectTrigger>
-                                         <SelectContent>
-                                           <SelectItem value="square">Square (1:1)</SelectItem>
-                                           <SelectItem value="landscape">Landscape (16:9)</SelectItem>
-                                           <SelectItem value="portrait">Portrait (9:16)</SelectItem>
-                                         </SelectContent>
+                                          <SelectContent>
+                                            <SelectItem value="Square (1:1)">Square (1:1)</SelectItem>
+                                            <SelectItem value="Landscape (16:9)">Landscape (16:9)</SelectItem>
+                                            <SelectItem value="Portrait (9:16)">Portrait (9:16)</SelectItem>
+                                          </SelectContent>
                                        </Select>
                                      </div>
                                   </div>
