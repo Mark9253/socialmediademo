@@ -47,7 +47,6 @@ export interface ContentGenerationRequest {
   goToArticle: string;
   socialChannels: string[];
   needsImage: boolean;
-  imageSize: string;
 }
 
 export type Platform = 'twitter' | 'linkedin' | 'instagram' | 'facebook' | 'blog';
