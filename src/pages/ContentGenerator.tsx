@@ -300,409 +300,195 @@ export const ContentGenerator = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="generate" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="generate">Generate New Content</TabsTrigger>
-            <TabsTrigger value="database">Source Content Database</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="generate" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Sparkles className="w-5 h-5" />
-                  <span>Create New Content</span>
-                </CardTitle>
-                <CardDescription>
-                  Provide source content to generate social media posts across multiple platforms
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="headline">Source Headline *</Label>
-                      <Input
-                        id="headline"
-                        value={formData.sourceHeadline}
-                        onChange={(e) => setFormData(prev => ({ ...prev, sourceHeadline: e.target.value }))}
-                        placeholder="Enter the main headline of your source content"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="sourceURL">Source URL</Label>
-                      <Input
-                        id="sourceURL"
-                        type="url"
-                        value={formData.sourceURL}
-                        onChange={(e) => setFormData(prev => ({ ...prev, sourceURL: e.target.value }))}
-                        placeholder="https://example.com/article"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="summary">Source Summary *</Label>
-                    <Textarea
-                      id="summary"
-                      value={formData.sourceSummary}
-                      onChange={(e) => setFormData(prev => ({ ...prev, sourceSummary: e.target.value }))}
-                      placeholder="Provide a detailed summary of the source content..."
-                      className="min-h-[120px]"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="goToArticle">Go to Article Link</Label>
-                    <Input
-                      id="goToArticle"
-                      type="url"
-                      value={formData.goToArticle}
-                      onChange={(e) => setFormData(prev => ({ ...prev, goToArticle: e.target.value }))}
-                      placeholder="Direct link to the full article"
-                    />
-                  </div>
-
-                  <div className="space-y-4">
-                    <Label>Social Media Platforms *</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                      {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => (
-                        <div key={platform} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={platform}
-                            checked={formData.socialChannels.includes(platform as Platform)}
-                            onCheckedChange={() => handleChannelToggle(platform as Platform)}
-                          />
-                          <Label htmlFor={platform} className="text-sm cursor-pointer">
-                            {config.name}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="needsImage"
-                      checked={formData.needsImage}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, needsImage: checked as boolean }))}
-                    />
-                    <Label htmlFor="needsImage" className="text-sm cursor-pointer flex items-center space-x-2">
-                      <ImageIcon className="w-4 h-4" />
-                      <span>Needs Image</span>
-                    </Label>
-                  </div>
-
-                  <Button type="submit" disabled={isGenerating} className="w-full" size="lg">
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Generating Content...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Generate Content
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="database" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <FileText className="w-5 h-5" />
-                  <span>Source Content Database</span>
-                </CardTitle>
-                <CardDescription>
-                  View and reference your existing source content data
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="space-y-4">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-32 bg-muted animate-pulse rounded-lg" />
-                    ))}
-                  </div>
-                ) : posts.length > 0 ? (
-                  <div className="grid gap-6">
-                    {posts.map((post) => (
-                      <Card key={post.ID} className="border-l-4 border-l-amber-400">
-                        <CardContent className="p-6">
-                          <div className="space-y-6">
-                            {/* Header */}
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h3 className="text-lg font-semibold mb-2">{post.sourceHeadline}</h3>
-                                <Badge className={`text-xs ${getStatusColor(post.Status || 'Unknown')}`}>
-                                  {post.Status || 'Unknown'}
-                                </Badge>
-                              </div>
-                              {post.Created && (
-                                <div className="flex items-center text-xs text-muted-foreground">
-                                  <Calendar className="w-3 h-3 mr-1" />
-                                  {new Date(post.Created).toLocaleDateString()}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Summary */}
-                            <div className="space-y-2">
-                              <h4 className="font-medium text-sm">Summary</h4>
-                              <p className="text-sm text-muted-foreground leading-relaxed">
-                                {post.sourceSummary}
-                              </p>
-                            </div>
-
-                            {/* Links */}
-                            <div className="flex flex-wrap gap-4 text-sm">
-                              {post.sourceURL && (
-                                <a
-                                  href={typeof post.sourceURL === 'string' ? post.sourceURL : post.sourceURL.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                                >
-                                  <Link2 className="w-3 h-3 mr-1" />
-                                  Source URL
-                                  <ExternalLink className="w-3 h-3 ml-1" />
-                                </a>
-                              )}
-                              {post.goToArticle && (
-                                <a
-                                  href={typeof post.goToArticle === 'string' ? post.goToArticle : post.goToArticle.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                                >
-                                  <FileText className="w-3 h-3 mr-1" />
-                                  Go to Article
-                                  <ExternalLink className="w-3 h-3 ml-1" />
-                                </a>
-                              )}
-                            </div>
-
-                            {/* Social Channels & Image Options - Editable */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                              {/* Social Channels - Selectable */}
-                              <div className="border-t pt-3">
-                                <Label className="text-sm font-medium text-muted-foreground">Social Channels</Label>
-                                <div className="mt-2 space-y-2">
-                                  {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
-                                    const edits = editingPosts.get(post.ID!);
-                                    const currentChannels = edits?.socialChannels || post.socialChannels;
-                                    const isSelected = currentChannels && typeof currentChannels === 'string'
-                                      ? currentChannels.toLowerCase().includes(platform.toLowerCase())
-                                      : Array.isArray(currentChannels) && currentChannels.some(ch => 
-                                          typeof ch === 'string' && ch.toLowerCase().includes(platform.toLowerCase())
-                                        );
-
-                                    return (
-                                      <div key={platform} className="flex items-center space-x-3 p-2 border rounded hover:bg-accent/50 transition-colors">
-                                        <Checkbox
-                                          id={`${post.ID}-${platform}`}
-                                          checked={isSelected}
-                                          onCheckedChange={(checked) => {
-                                            handlePlatformToggle(post.ID!, platform as Platform, checked as boolean);
-                                          }}
-                                        />
-                                        <Label htmlFor={`${post.ID}-${platform}`} className="text-sm cursor-pointer flex items-center space-x-2">
-                                          <span>{getPlatformIcon(platform)}</span>
-                                          <span>{config.name}</span>
-                                        </Label>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-
-                              {/* Image Options - Selectable */}
-                              <div className="border-t pt-3">
-                                <Label className="text-sm font-medium text-muted-foreground">Image Requirements</Label>
-                                <div className="mt-2 space-y-3">
-                                  {/* Needs Image Toggle */}
-                                  <div className="flex items-center space-x-3 p-2 border rounded hover:bg-accent/50 transition-colors">
-                                    <Checkbox
-                                      id={`${post.ID}-needsImage`}
-                                      checked={(() => {
-                                        const edits = editingPosts.get(post.ID!);
-                                        const currentValue = edits?.['needsImage?'] || post['needsImage?'];
-                                        return currentValue === 'Yes' || currentValue === 'true' || (typeof currentValue === 'boolean' && currentValue);
-                                      })()}
-                                      onCheckedChange={(checked) => {
-                                        handleImageToggle(post.ID!, checked as boolean);
-                                      }}
-                                    />
-                                    <Label htmlFor={`${post.ID}-needsImage`} className="text-sm cursor-pointer flex items-center space-x-2">
-                                      <ImageIcon className="w-4 h-4" />
-                                      <span>Needs Image</span>
-                                    </Label>
-                                  </div>
-
-                                  {/* Current Image Status */}
-                                  <div className="text-xs text-muted-foreground">
-                                    Current: {(() => {
-                                      const edits = editingPosts.get(post.ID!);
-                                      return edits?.['needsImage?'] || post['needsImage?'] || 'Not specified';
-                                    })()}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Save Changes Button */}
-                            {hasUnsavedChanges(post.ID!) && (
-                              <div className="mt-4 pt-3 border-t">
-                                <Button
-                                  onClick={() => savePostChanges(post.ID!)}
-                                  disabled={savingPosts.has(post.ID!)}
-                                  className="w-full"
-                                  size="sm"
-                                >
-                                  {savingPosts.has(post.ID!) ? (
-                                    <>
-                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                      Saving Changes...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Check className="w-4 h-4 mr-2" />
-                                      Submit
-                                    </>
-                                  )}
-                                </Button>
-                              </div>
-                            )}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <FileText className="w-5 h-5" />
+              <span>Source Content Database</span>
+            </CardTitle>
+            <CardDescription>
+              View and manage your source content that's waiting for content generation
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-32 bg-muted animate-pulse rounded-lg" />
+                ))}
+              </div>
+            ) : posts.length > 0 ? (
+              <div className="grid gap-6">
+                {posts.map((post) => (
+                  <Card key={post.ID} className="border-l-4 border-l-amber-400">
+                    <CardContent className="p-6">
+                      <div className="space-y-6">
+                        {/* Header */}
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold mb-2">{post.sourceHeadline}</h3>
+                            <Badge className={`text-xs ${getStatusColor(post.Status || 'Unknown')}`}>
+                              {post.Status || 'Unknown'}
+                            </Badge>
                           </div>
+                          {post.Created && (
+                            <div className="flex items-center text-xs text-muted-foreground">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              {new Date(post.Created).toLocaleDateString()}
+                            </div>
+                          )}
+                        </div>
 
-                          {/* Generated Content Section */}
-                          {(post.twitterCopy || post.linkedinCopy || post.instagramCopy || post.facebookCopy || post.blogCopy || post.imagePrompt || post.postImage) && (
-                            <div className="mt-6 border-t pt-6">
-                              <div className="flex items-center space-x-2 mb-4">
-                                <div className="p-2 rounded-lg bg-success-light">
-                                  <Sparkles className="w-5 h-5 text-success" />
-                                </div>
-                                <h4 className="text-lg font-semibold">Generated Content</h4>
-                              </div>
+                        {/* Summary */}
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm">Summary</h4>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {post.sourceSummary}
+                          </p>
+                        </div>
 
-                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                {/* Platform Posts */}
-                                <div className="space-y-4">
-                                  {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
-                                    const copyField = `${platform}Copy` as keyof SocialPost;
-                                    const content = post[copyField] as string;
-                                    if (!content) return null;
-
-                                    const { count, max, isOver } = getCharacterCount(content, platform as Platform);
-                                    const copyId = `${post.ID}-${platform}`;
-
-                                    return (
-                                      <div key={platform} className="border rounded-lg p-4">
-                                        <div className="flex items-center justify-between mb-2">
-                                          <div className="flex items-center space-x-2">
-                                            <span className="text-lg">{getPlatformIcon(platform)}</span>
-                                            <span className="font-medium text-sm">{config.name}</span>
-                                          </div>
-                                          <div className="flex items-center space-x-2">
-                                            <span className={`text-xs ${isOver ? 'text-red-600' : 'text-muted-foreground'}`}>
-                                              {count}/{max}
-                                            </span>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              onClick={() => copyToClipboard(content, copyId)}
-                                              className="h-6 w-6 p-0"
-                                            >
-                                              {copiedItems.has(copyId) ? (
-                                                <Check className="w-3 h-3 text-green-600" />
-                                              ) : (
-                                                <Copy className="w-3 h-3" />
-                                              )}
-                                            </Button>
-                                          </div>
-                                        </div>
-                                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-
-                                {/* Image & Prompt */}
-                                <div className="space-y-4">
-                                  {post.imagePrompt && (
-                                    <div className="border rounded-lg p-4">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <span className="font-medium text-sm">Image Prompt</span>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => copyToClipboard(post.imagePrompt!, `${post.ID}-prompt`)}
-                                          className="h-6 w-6 p-0"
-                                        >
-                                          {copiedItems.has(`${post.ID}-prompt`) ? (
-                                            <Check className="w-3 h-3 text-green-600" />
-                                          ) : (
-                                            <Copy className="w-3 h-3" />
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <p className="text-sm leading-relaxed">{post.imagePrompt}</p>
-                                    </div>
-                                  )}
-
-                                  {post.postImage && (
-                                    <div className="border rounded-lg p-4">
-                                      <span className="font-medium text-sm mb-2 block">Generated Image</span>
-                                      {typeof post.postImage === 'string' ? (
-                                        post.postImage.startsWith('http') ? (
-                                          <img
-                                            src={post.postImage}
-                                            alt="Generated content"
-                                            className="w-full rounded-lg"
-                                          />
-                                        ) : (
-                                          <p className="text-sm text-muted-foreground">{post.postImage}</p>
-                                        )
-                                      ) : (
-                                        post.postImage.url && (
-                                          <img
-                                            src={post.postImage.url}
-                                            alt="Generated content"
-                                            className="w-full rounded-lg"
-                                          />
-                                        )
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
+                        {/* URLs */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {post.sourceURL && (
+                            <div className="space-y-1">
+                              <h4 className="font-medium text-sm flex items-center">
+                                <Link2 className="w-3 h-3 mr-1" />
+                                Source URL
+                              </h4>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs text-muted-foreground truncate">
+                                  {typeof post.sourceURL === 'string' ? post.sourceURL : post.sourceURL?.url || 'No URL'}
+                                </span>
+                                {typeof post.sourceURL === 'string' && post.sourceURL !== 'URL not available' && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-6 px-2"
+                                    onClick={() => window.open(post.sourceURL as string, '_blank')}
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No Content Yet</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Generate your first content using the "Generate New Content" tab.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+
+                          {post.goToArticle && (
+                            <div className="space-y-1">
+                              <h4 className="font-medium text-sm flex items-center">
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                Article Link
+                              </h4>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs text-muted-foreground truncate">
+                                  {typeof post.goToArticle === 'string' ? post.goToArticle : post.goToArticle?.url || 'No URL'}
+                                </span>
+                                {typeof post.goToArticle === 'string' && post.goToArticle !== 'URL not available' && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-6 px-2"
+                                    onClick={() => window.open(post.goToArticle as string, '_blank')}
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Social Channels */}
+                        <div className="space-y-3">
+                          <h4 className="font-medium text-sm">Social Media Platforms</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                            {Object.entries(PLATFORM_CONFIGS).map(([platform, config]) => {
+                              const isChecked = (() => {
+                                const edits = editingPosts.get(post.ID!);
+                                const channels = edits?.socialChannels || post.socialChannels;
+                                
+                                if (typeof channels === 'string') {
+                                  return channels.toLowerCase().includes(platform.toLowerCase());
+                                }
+                                
+                                if (Array.isArray(channels)) {
+                                  return channels.some(ch => ch.toLowerCase() === platform.toLowerCase());
+                                }
+                                
+                                return false;
+                              })();
+
+                              return (
+                                <div key={platform} className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={`${post.ID}-${platform}`}
+                                    checked={isChecked}
+                                    onCheckedChange={(checked) => handlePlatformToggle(post.ID!, platform as Platform, checked as boolean)}
+                                  />
+                                  <Label htmlFor={`${post.ID}-${platform}`} className="text-xs cursor-pointer">
+                                    {config.name}
+                                  </Label>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Image Option */}
+                        <div className="space-y-3">
+                          <h4 className="font-medium text-sm">Image Requirements</h4>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`${post.ID}-image`}
+                              checked={(() => {
+                                const edits = editingPosts.get(post.ID!);
+                                const needsImage = edits?.['needsImage?'] || post['needsImage?'];
+                                return needsImage === 'Yes';
+                              })()}
+                              onCheckedChange={(checked) => handleImageToggle(post.ID!, checked as boolean)}
+                            />
+                            <Label htmlFor={`${post.ID}-image`} className="text-sm cursor-pointer flex items-center space-x-2">
+                              <ImageIcon className="w-4 h-4" />
+                              <span>Needs Image</span>
+                            </Label>
+                          </div>
+                        </div>
+
+                        {/* Save Button */}
+                        {hasUnsavedChanges(post.ID!) && (
+                          <div className="pt-4 border-t">
+                            <Button
+                              onClick={() => savePostChanges(post.ID!)}
+                              disabled={savingPosts.has(post.ID!)}
+                              className="w-full"
+                            >
+                              {savingPosts.has(post.ID!) ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Saving Changes...
+                                </>
+                              ) : (
+                                'Save Changes'
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Content Found</h3>
+                <p className="text-muted-foreground">
+                  No source content is currently waiting for generation. Create new content to get started.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );
