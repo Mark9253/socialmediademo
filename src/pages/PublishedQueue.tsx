@@ -26,7 +26,21 @@ export const PublishedQueue = () => {
         const approvedPosts = data.filter(post => 
           post.Status && post.Status.toLowerCase() === 'approved'
         );
-        setPosts(approvedPosts);
+        
+        // Sort by scheduled publish date (soonest first)
+        const sortedPosts = approvedPosts.sort((a, b) => {
+          const dateA = a.datePosted || (a as any)['Date / Time to Post'];
+          const dateB = b.datePosted || (b as any)['Date / Time to Post'];
+          
+          // Posts without dates go to the end
+          if (!dateA && !dateB) return 0;
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+          
+          return new Date(dateA).getTime() - new Date(dateB).getTime();
+        });
+        
+        setPosts(sortedPosts);
       } catch (error) {
         console.error('Failed to load posts:', error);
         toast({
