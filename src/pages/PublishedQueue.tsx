@@ -364,24 +364,35 @@ export const PublishedQueue = () => {
                         {post.postImage && (
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Post Image</Label>
-                            <div className="mt-2">
+                            <div className="mt-2 space-y-2">
                               {(() => {
                                 const imageUrl = typeof post.postImage === 'string' 
                                   ? post.postImage 
                                   : (post.postImage as any)?.url;
                                 
                                 return imageUrl ? (
-                                  <div className="w-full max-w-sm">
-                                    <img 
-                                      src={imageUrl} 
-                                      alt="Post visual content" 
-                                      className="w-full h-auto rounded-md border border-border"
-                                      onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.style.display = 'none';
-                                      }}
-                                    />
-                                  </div>
+                                  <>
+                                    <div className="w-full max-w-sm">
+                                      <img 
+                                        src={imageUrl} 
+                                        alt="Post visual content" 
+                                        className="w-full h-auto rounded-md border border-border"
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                        }}
+                                      />
+                                    </div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-8 text-xs"
+                                      onClick={() => window.open(imageUrl, '_blank')}
+                                    >
+                                      <ExternalLink className="w-3 h-3 mr-1" />
+                                      View Image Link
+                                    </Button>
+                                  </>
                                 ) : (
                                   <p className="text-sm text-muted-foreground">No image available</p>
                                 );
