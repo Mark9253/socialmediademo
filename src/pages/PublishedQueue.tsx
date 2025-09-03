@@ -291,14 +291,14 @@ export const PublishedQueue = () => {
                           <CalendarIcon className="w-4 h-4 text-primary" />
                           <Label className="text-sm font-medium text-primary">Scheduled to Publish</Label>
                         </div>
-                        {post.datePosted ? (
+                        {(post.datePosted || (post as any)['Date / Time to Post']) ? (
                           <div className="space-y-1">
                             <div className="text-sm font-medium text-foreground">
-                              {format(new Date(post.datePosted), 'PPP')}
+                              {format(new Date(post.datePosted || (post as any)['Date / Time to Post']), 'PPP')}
                             </div>
                             <div className="text-xs text-muted-foreground flex items-center space-x-1">
                               <Clock className="w-3 h-3" />
-                              <span>{format(new Date(post.datePosted), 'p')}</span>
+                              <span>{format(new Date(post.datePosted || (post as any)['Date / Time to Post']), 'p')}</span>
                             </div>
                           </div>
                         ) : (
