@@ -361,14 +361,15 @@ export const PublishedQueue = () => {
                         )}
 
                         {/* Post Image */}
-                        {post.postImage && (
+                        {((post as any).imageurl || post.postImage) && (
                           <div>
                             <Label className="text-sm font-medium text-muted-foreground">Post Image</Label>
                             <div className="mt-2 space-y-2">
                               {(() => {
-                                const imageUrl = typeof post.postImage === 'string' 
-                                  ? post.postImage 
-                                  : (post.postImage as any)?.url;
+                                const imageUrl = (post as any).imageurl || 
+                                  (typeof post.postImage === 'string' 
+                                    ? post.postImage 
+                                    : (post.postImage as any)?.url);
                                 
                                 return imageUrl ? (
                                   <>
