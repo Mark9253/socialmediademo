@@ -249,8 +249,15 @@ export const ContentGenerator = () => {
           .split(',')
           .map(channel => {
             const trimmed = channel.trim();
-            // Capitalize first letter to match Airtable's expected format
-            return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+            // Map to exact values expected by Airtable
+            switch (trimmed.toLowerCase()) {
+              case 'linkedin': return 'LinkedIn';
+              case 'twitter': return 'Twitter';
+              case 'instagram': return 'Instagram';
+              case 'facebook': return 'Facebook';
+              case 'blog': return 'Blog';
+              default: return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+            }
           })
           .filter(channel => channel.length > 0);
       }
