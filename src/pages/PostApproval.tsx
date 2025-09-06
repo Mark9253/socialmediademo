@@ -33,7 +33,7 @@ export const PostApproval = () => {
         const data = await fetchSocialPosts();
         // Filter only posts that need approval and sort by creation date (newest first)
         const needsApprovalPosts = data
-          .filter(post => post.Status && post.Status.toLowerCase() === 'needs approval')
+          .filter(post => post.Status && post.Status.toLowerCase().includes('needs approval'))
           .sort((a, b) => {
             const dateA = new Date(a.Created || 0);
             const dateB = new Date(b.Created || 0);
