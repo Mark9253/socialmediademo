@@ -14,6 +14,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+} from "recharts";
 
 export const Analytics = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData[]>([]);
@@ -95,6 +109,80 @@ export const Analytics = () => {
     .filter(post => post.status?.toLowerCase() === 'success')
     .sort((a, b) => (b.reach || 0) - (a.reach || 0))
     .slice(0, 10);
+
+  // Prepare data for charts
+  const prepareGrowthTrendData = () => {
+    const dataByDate: Record<string, any> = {};
+    
+    analytics.forEach(item => {
+      if (!item.Date) return;
+      const date = new Date(item.Date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      
+      if (!dataByDate[date]) {
+        dataByDate[date] = { date, total: 0 };
+      }
+      
+      const platform = item.Platform || 'Unknown';
+      if (!dataByDate[date][platform]) {
+        dataByDate[date][platform] = 0;
+      }
+      
+      dataByDate[date][platform] += item.Followers || 0;
+      dataByDate[date].total += item.Followers || 0;
+    });
+    
+    return Object.values(dataByDate).sort((a: any, b: any) => {
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
+  };
+
+  const prepareEngagementData = () => {
+    const dataByDate: Record<string, any> = {};
+    
+    analytics.forEach(item => {
+      if (!item.Date) return;
+      const date = new Date(item.Date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      
+      if (!dataByDate[date]) {
+        dataByDate[date] = { date, reach: 0, impressions: 0, engagement: 0 };
+      }
+      
+      dataByDate[date].reach += item.Reach || 0;
+      dataByDate[date].impressions += item.Impressions || 0;
+      dataByDate[date].engagement += item.Engagement || 0;
+    });
+    
+    return Object.values(dataByDate).sort((a: any, b: any) => {
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
+  };
+
+  const preparePlatformComparisonData = () => {
+    return Object.entries(platformData)
+      .map(([platform, data]) => ({
+        platform,
+        followers: data.followers,
+        reach: data.reach,
+        engagement: data.engagement,
+        posts: data.posts
+      }))
+      .sort((a, b) => b.followers - a.followers);
+  };
+
+  const growthTrendData = prepareGrowthTrendData();
+  const engagementData = prepareEngagementData();
+  const platformComparisonData = preparePlatformComparisonData();
+
+  const getPlatformColor = (platform: string) => {
+    const colors: Record<string, string> = {
+      Instagram: '#E4405F',
+      Facebook: '#1877F2',
+      Twitter: '#1DA1F2',
+      X: '#000000',
+      LinkedIn: '#0A66C2',
+    };
+    return colors[platform] || '#8B5CF6';
+  };
 
   const getPlatformIcon = (platform: string) => {
     const platformLower = platform.toLowerCase();
@@ -183,6 +271,120 @@ export const Analytics = () => {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
+            {/* Growth Trends Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>📈 Growth Trends</CardTitle>
+                <CardDescription>Follower growth over time by platform</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={350}>
+                  <LineChart data={growthTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="date" 
+                      className="text-xs"
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <YAxis 
+                      className="text-xs"
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Legend />
+                    {Object.keys(platformData).map(platform => (
+                      <Line
+                        key={platform}
+                        type="monotone"
+                        dataKey={platform}
+                        stroke={getPlatformColor(platform)}
+                        strokeWidth={2}
+                        dot={{ r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Engagement Over Time Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>👁️ Engagement Over Time</CardTitle>
+                <CardDescription>Reach, impressions, and engagement trends</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={350}>
+                  <AreaChart data={engagementData}>
+                    <defs>
+                      <linearGradient id="colorReach" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorImpressions" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorEngagement" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="date" 
+                      className="text-xs"
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <YAxis 
+                      className="text-xs"
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Legend />
+                    <Area 
+                      type="monotone" 
+                      dataKey="reach" 
+                      stroke="#8B5CF6" 
+                      fillOpacity={1} 
+                      fill="url(#colorReach)" 
+                      name="Reach"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="impressions" 
+                      stroke="#3B82F6" 
+                      fillOpacity={1} 
+                      fill="url(#colorImpressions)" 
+                      name="Impressions"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="engagement" 
+                      stroke="#10B981" 
+                      fillOpacity={1} 
+                      fill="url(#colorEngagement)" 
+                      name="Engagement"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Platform Performance Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {Object.entries(platformData).map(([platform, data]) => (
                 <Card key={platform}>
@@ -217,10 +419,46 @@ export const Analytics = () => {
 
           {/* Platforms Tab */}
           <TabsContent value="platforms" className="space-y-4">
+            {/* Platform Comparison Bar Chart */}
             <Card>
               <CardHeader>
                 <CardTitle>Platform Comparison</CardTitle>
-                <CardDescription>Performance metrics by platform</CardDescription>
+                <CardDescription>Side-by-side performance metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={platformComparisonData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="platform" 
+                      className="text-xs"
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <YAxis 
+                      className="text-xs"
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="followers" fill="#8B5CF6" name="Followers" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="reach" fill="#3B82F6" name="Reach" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="engagement" fill="#10B981" name="Engagement" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Platform Cards */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Follower Distribution</CardTitle>
+                <CardDescription>Breakdown by platform</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
