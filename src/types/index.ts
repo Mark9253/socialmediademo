@@ -40,6 +40,29 @@ export interface MarketingVideoFolder {
   url?: string;
 }
 
+export interface AnalyticsData {
+  recordId?: string;
+  Date?: string;
+  Platform?: string;
+  Followers?: number;
+  Reach?: number;
+  Impressions?: number;
+  Engagement?: number;
+  Posts?: number;
+}
+
+export interface PostHistory {
+  recordId?: string;
+  post_url?: string;
+  title?: string;
+  platform?: string;
+  created_at?: string;
+  status?: string;
+  reach?: number;
+  impressions?: number;
+  engagement?: number;
+}
+
 export interface ContentGenerationRequest {
   sourceHeadline: string;
   sourceSummary: string;

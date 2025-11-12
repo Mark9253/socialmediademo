@@ -11,7 +11,8 @@ import {
   Lightbulb,
   Send,
   Plus,
-  Zap
+  Zap,
+  BarChart3
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ const navigation = [
   // { name: 'Create Post', href: '/create', icon: Plus }, // Temporarily hidden
   { name: 'Post for Approval', href: '/approval', icon: CheckCircle },
   { name: 'Publishing Queue', href: '/queue', icon: Send },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Brand Guidelines', href: '/guidelines', icon: Palette },
   { name: 'Writing Prompts', href: '/prompts', icon: FileText },
   { name: 'Marketing Shorts', href: '/marketing-shorts', icon: Zap },

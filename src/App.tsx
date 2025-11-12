@@ -12,6 +12,7 @@ import { PublishedQueue } from "./pages/PublishedQueue";
 import { ContentIdeas } from "./pages/ContentIdeas";
 import { MarketingShorts } from "./pages/MarketingShorts";
 import { CreatePost } from "./pages/CreatePost";
+import { Analytics } from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/queue" element={<PublishedQueue />} />
           <Route path="/ideas" element={<ContentIdeas />} />
           <Route path="/marketing-shorts" element={<MarketingShorts />} />
+          <Route path="/analytics" element={<Analytics />} />
           {/* <Route path="/create" element={<CreatePost />} /> */} {/* Temporarily hidden */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

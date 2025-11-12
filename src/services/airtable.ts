@@ -272,3 +272,58 @@ export const fetchMarketingVideoFolders = async (): Promise<MarketingVideoFolder
     throw error;
   }
 };
+
+// ============= Analytics Data API =============
+export const fetchAnalyticsData = async (): Promise<import('@/types').AnalyticsData[]> => {
+  try {
+    const url = `${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tableIds.analysis}`;
+    const response = await fetch(url, { headers: getHeaders() });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.records.map((record: any) => ({
+      recordId: record.id,
+      Date: record.fields.Date || record.fields.date,
+      Platform: record.fields.Platform || record.fields.platform,
+      Followers: record.fields.Followers || record.fields.followers || 0,
+      Reach: record.fields.Reach || record.fields.reach || 0,
+      Impressions: record.fields.Impressions || record.fields.impressions || 0,
+      Engagement: record.fields.Engagement || record.fields.engagement || 0,
+      Posts: record.fields.Posts || record.fields.posts || 0
+    }));
+  } catch (error) {
+    console.error('Error fetching analytics data:', error);
+    throw error;
+  }
+};
+
+// ============= Post History API =============
+export const fetchPostHistory = async (): Promise<import('@/types').PostHistory[]> => {
+  try {
+    const url = `${AIRTABLE_BASE_URL}/${AIRTABLE_CONFIG.tableIds.postHistory}`;
+    const response = await fetch(url, { headers: getHeaders() });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.records.map((record: any) => ({
+      recordId: record.id,
+      post_url: record.fields.post_url || record.fields['Post URL'] || record.fields.url,
+      title: record.fields.title || record.fields.Title,
+      platform: record.fields.platform || record.fields.Platform,
+      created_at: record.fields.created_at || record.fields['Created At'] || record.fields.Date,
+      status: record.fields.status || record.fields.Status,
+      reach: record.fields.reach || record.fields.Reach || 0,
+      impressions: record.fields.impressions || record.fields.Impressions || 0,
+      engagement: record.fields.engagement || record.fields.Engagement || 0
+    }));
+  } catch (error) {
+    console.error('Error fetching post history:', error);
+    throw error;
+  }
+};
