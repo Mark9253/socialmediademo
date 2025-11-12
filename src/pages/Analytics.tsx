@@ -3,7 +3,7 @@ import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchAnalyticsData, fetchPostHistory } from "@/services/airtable";
 import { AnalyticsData, PostHistory } from "@/types";
-import { Users, Eye, TrendingUp, BarChart3, Calendar, Award, Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Users, Eye, TrendingUp, BarChart3, Calendar as CalendarIcon, Award, Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -28,11 +28,25 @@ import {
   Area,
   AreaChart,
 } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+
+type DateRangePreset = '7' | '30' | '90' | 'custom' | 'all';
 
 export const Analytics = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData[]>([]);
   const [postHistory, setPostHistory] = useState<PostHistory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState<DateRangePreset>('30');
+  const [customStartDate, setCustomStartDate] = useState<Date>();
+  const [customEndDate, setCustomEndDate] = useState<Date>();
 
   useEffect(() => {
     const loadData = async () => {
@@ -53,31 +67,77 @@ export const Analytics = () => {
     loadData();
   }, []);
 
+  // Filter data based on date range
+  const getFilteredData = () => {
+    const now = new Date();
+    let startDate: Date;
+    
+    if (dateRange === 'all') {
+      return { analytics, postHistory };
+    }
+    
+    if (dateRange === 'custom') {
+      if (!customStartDate || !customEndDate) {
+        return { analytics, postHistory };
+      }
+      startDate = customStartDate;
+      const endDate = customEndDate;
+      
+      return {
+        analytics: analytics.filter(item => {
+          if (!item.Date) return false;
+          const itemDate = new Date(item.Date);
+          return itemDate >= startDate && itemDate <= endDate;
+        }),
+        postHistory: postHistory.filter(item => {
+          if (!item.created_at) return false;
+          const itemDate = new Date(item.created_at);
+          return itemDate >= startDate && itemDate <= endDate;
+        })
+      };
+    }
+    
+    // Preset ranges
+    const days = parseInt(dateRange);
+    startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - days);
+    
+    return {
+      analytics: analytics.filter(item => {
+        if (!item.Date) return false;
+        const itemDate = new Date(item.Date);
+        return itemDate >= startDate;
+      }),
+      postHistory: postHistory.filter(item => {
+        if (!item.created_at) return false;
+        const itemDate = new Date(item.created_at);
+        return itemDate >= startDate;
+      })
+    };
+  };
+
+  const { analytics: filteredAnalytics, postHistory: filteredPostHistory } = getFilteredData();
+
   // Calculate KPIs
   const calculateKPIs = () => {
-    const last30Days = new Date();
-    last30Days.setDate(last30Days.getDate() - 30);
-
-    const recentData = analytics.filter(item => {
-      if (!item.Date) return false;
-      const itemDate = new Date(item.Date);
-      return itemDate >= last30Days;
-    });
-
-    const totalFollowers = analytics.reduce((sum, item) => sum + (item.Followers || 0), 0);
-    const totalReach = recentData.reduce((sum, item) => sum + (item.Reach || 0), 0);
-    const totalImpressions = recentData.reduce((sum, item) => sum + (item.Impressions || 0), 0);
+    const totalFollowers = filteredAnalytics.reduce((sum, item) => sum + (item.Followers || 0), 0);
+    const totalReach = filteredAnalytics.reduce((sum, item) => sum + (item.Reach || 0), 0);
+    const totalImpressions = filteredAnalytics.reduce((sum, item) => sum + (item.Impressions || 0), 0);
     
-    // Calculate growth rate
-    const oldData = analytics.filter(item => {
-      if (!item.Date) return false;
-      const itemDate = new Date(item.Date);
-      const old30Days = new Date(last30Days);
-      old30Days.setDate(old30Days.getDate() - 30);
-      return itemDate >= old30Days && itemDate < last30Days;
+    // Calculate growth rate (comparing first half vs second half of the period)
+    const sortedData = [...filteredAnalytics].sort((a, b) => {
+      const dateA = a.Date ? new Date(a.Date).getTime() : 0;
+      const dateB = b.Date ? new Date(b.Date).getTime() : 0;
+      return dateA - dateB;
     });
-    const oldFollowers = oldData.reduce((sum, item) => sum + (item.Followers || 0), 0);
-    const growthRate = oldFollowers > 0 ? ((totalFollowers - oldFollowers) / oldFollowers * 100) : 0;
+    
+    const midPoint = Math.floor(sortedData.length / 2);
+    const firstHalf = sortedData.slice(0, midPoint);
+    const secondHalf = sortedData.slice(midPoint);
+    
+    const firstHalfFollowers = firstHalf.reduce((sum, item) => sum + (item.Followers || 0), 0);
+    const secondHalfFollowers = secondHalf.reduce((sum, item) => sum + (item.Followers || 0), 0);
+    const growthRate = firstHalfFollowers > 0 ? ((secondHalfFollowers - firstHalfFollowers) / firstHalfFollowers * 100) : 0;
 
     return { totalFollowers, totalReach, totalImpressions, growthRate };
   };
@@ -85,7 +145,7 @@ export const Analytics = () => {
   const kpis = calculateKPIs();
 
   // Group analytics by platform
-  const platformData = analytics.reduce((acc, item) => {
+  const platformData = filteredAnalytics.reduce((acc, item) => {
     const platform = item.Platform || 'Unknown';
     if (!acc[platform]) {
       acc[platform] = {
@@ -105,7 +165,7 @@ export const Analytics = () => {
   }, {} as Record<string, any>);
 
   // Get top performing posts
-  const topPosts = postHistory
+  const topPosts = filteredPostHistory
     .filter(post => post.status?.toLowerCase() === 'success')
     .sort((a, b) => (b.reach || 0) - (a.reach || 0))
     .slice(0, 10);
@@ -114,7 +174,7 @@ export const Analytics = () => {
   const prepareGrowthTrendData = () => {
     const dataByDate: Record<string, any> = {};
     
-    analytics.forEach(item => {
+    filteredAnalytics.forEach(item => {
       if (!item.Date) return;
       const date = new Date(item.Date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       
@@ -139,7 +199,7 @@ export const Analytics = () => {
   const prepareEngagementData = () => {
     const dataByDate: Record<string, any> = {};
     
-    analytics.forEach(item => {
+    filteredAnalytics.forEach(item => {
       if (!item.Date) return;
       const date = new Date(item.Date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       
@@ -212,6 +272,113 @@ export const Analytics = () => {
           <p className="text-muted-foreground">Comprehensive analytics and insights</p>
         </div>
 
+        {/* Date Range Filter */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={dateRange === '7' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDateRange('7')}
+                >
+                  Last 7 Days
+                </Button>
+                <Button
+                  variant={dateRange === '30' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDateRange('30')}
+                >
+                  Last 30 Days
+                </Button>
+                <Button
+                  variant={dateRange === '90' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDateRange('90')}
+                >
+                  Last 90 Days
+                </Button>
+                <Button
+                  variant={dateRange === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDateRange('all')}
+                >
+                  All Time
+                </Button>
+              </div>
+              
+              <div className="flex gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={dateRange === 'custom' ? 'default' : 'outline'}
+                      size="sm"
+                      className={cn(
+                        "justify-start text-left font-normal",
+                        !customStartDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {customStartDate ? format(customStartDate, "MMM dd, yyyy") : "Start Date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-popover z-50" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={customStartDate}
+                      onSelect={(date) => {
+                        setCustomStartDate(date);
+                        if (date && customEndDate) {
+                          setDateRange('custom');
+                        }
+                      }}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={dateRange === 'custom' ? 'default' : 'outline'}
+                      size="sm"
+                      className={cn(
+                        "justify-start text-left font-normal",
+                        !customEndDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {customEndDate ? format(customEndDate, "MMM dd, yyyy") : "End Date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-popover z-50" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={customEndDate}
+                      onSelect={(date) => {
+                        setCustomEndDate(date);
+                        if (customStartDate && date) {
+                          setDateRange('custom');
+                        }
+                      }}
+                      disabled={(date) => customStartDate ? date < customStartDate : false}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            
+            {dateRange === 'custom' && customStartDate && customEndDate && (
+              <p className="text-sm text-muted-foreground mt-4">
+                Showing data from {format(customStartDate, "MMM dd, yyyy")} to {format(customEndDate, "MMM dd, yyyy")}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Executive Summary - KPI Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
@@ -221,7 +388,9 @@ export const Analytics = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{kpis.totalFollowers.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Across all platforms</p>
+              <p className="text-xs text-muted-foreground">
+                {dateRange === 'all' ? 'All time' : dateRange === 'custom' ? 'Selected period' : `Last ${dateRange} days`}
+              </p>
             </CardContent>
           </Card>
 
@@ -232,7 +401,9 @@ export const Analytics = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{kpis.totalReach.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Last 30 days</p>
+              <p className="text-xs text-muted-foreground">
+                {dateRange === 'all' ? 'All time' : dateRange === 'custom' ? 'Selected period' : `Last ${dateRange} days`}
+              </p>
             </CardContent>
           </Card>
 
@@ -243,7 +414,9 @@ export const Analytics = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{kpis.totalImpressions.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Last 30 days</p>
+              <p className="text-xs text-muted-foreground">
+                {dateRange === 'all' ? 'All time' : dateRange === 'custom' ? 'Selected period' : `Last ${dateRange} days`}
+              </p>
             </CardContent>
           </Card>
 
@@ -256,7 +429,7 @@ export const Analytics = () => {
               <div className="text-2xl font-bold">
                 {kpis.growthRate > 0 ? '+' : ''}{kpis.growthRate.toFixed(1)}%
               </div>
-              <p className="text-xs text-muted-foreground">vs previous period</p>
+              <p className="text-xs text-muted-foreground">Period comparison</p>
             </CardContent>
           </Card>
         </div>
@@ -563,7 +736,7 @@ export const Analytics = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {postHistory
+                    {filteredPostHistory
                       .sort((a, b) => {
                         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
                         const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
