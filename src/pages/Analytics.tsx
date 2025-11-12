@@ -40,6 +40,35 @@ import { format } from "date-fns";
 
 type DateRangePreset = '7' | '30' | '90' | 'custom' | 'all';
 
+interface Predictions {
+  growthForecasts: {
+    next30Days: { followerGrowth: number; reachIncrease: number; engagementRate: number };
+    next60Days: { followerGrowth: number; reachIncrease: number; engagementRate: number };
+    next90Days: { followerGrowth: number; reachIncrease: number; engagementRate: number };
+  };
+  contentInsights: {
+    bestPerformingContentTypes: string[];
+    optimalPostingTimes: string[];
+    recommendedFrequency: string;
+  };
+  platformRecommendations: Array<{
+    platform: string;
+    prediction: string;
+    actionItems: string[];
+  }>;
+  opportunities: Array<{
+    title: string;
+    description: string;
+    impact: 'high' | 'medium' | 'low';
+  }>;
+  risks: Array<{
+    title: string;
+    description: string;
+    mitigation: string;
+  }>;
+  keyTakeaways: string[];
+}
+
 export const Analytics = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData[]>([]);
   const [postHistory, setPostHistory] = useState<PostHistory[]>([]);
@@ -47,6 +76,8 @@ export const Analytics = () => {
   const [dateRange, setDateRange] = useState<DateRangePreset>('30');
   const [customStartDate, setCustomStartDate] = useState<Date>();
   const [customEndDate, setCustomEndDate] = useState<Date>();
+  const [predictions, setPredictions] = useState<Predictions | null>(null);
+  const [loadingPredictions, setLoadingPredictions] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,6 +97,53 @@ export const Analytics = () => {
     };
     loadData();
   }, []);
+
+  // Generate predictions
+  const generatePredictions = async () => {
+    setLoadingPredictions(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/predict-analytics`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            analyticsData: filteredAnalytics,
+            postHistory: filteredPostHistory,
+            dateRange: dateRange === 'custom' 
+              ? `${customStartDate ? format(customStartDate, 'MMM dd, yyyy') : ''} - ${customEndDate ? format(customEndDate, 'MMM dd, yyyy') : ''}`
+              : dateRange === 'all' ? 'All time' : `Last ${dateRange} days`
+          }),
+        }
+      );
+
+      if (response.status === 429) {
+        toast.error('Rate limit exceeded. Please try again later.');
+        return;
+      }
+      
+      if (response.status === 402) {
+        toast.error('Payment required. Please add credits to your Lovable workspace.');
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to generate predictions');
+      }
+
+      const data = await response.json();
+      setPredictions(data.predictions);
+      toast.success('Predictions generated successfully!');
+    } catch (error) {
+      console.error('Error generating predictions:', error);
+      toast.error('Failed to generate predictions. Please try again.');
+    } finally {
+      setLoadingPredictions(false);
+    }
+  };
 
   // Filter data based on date range
   const getFilteredData = () => {
@@ -440,6 +518,7 @@ export const Analytics = () => {
             <TabsTrigger value="platforms">Platforms</TabsTrigger>
             <TabsTrigger value="content">Top Content</TabsTrigger>
             <TabsTrigger value="history">Post History</TabsTrigger>
+            <TabsTrigger value="predictions">🔮 Predictions</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -784,6 +863,263 @@ export const Analytics = () => {
                       ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Predictions Tab */}
+          <TabsContent value="predictions" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>🔮 Predictive Analytics & Forecasts</CardTitle>
+                    <CardDescription>AI-powered insights and growth predictions</CardDescription>
+                  </div>
+                  <Button 
+                    onClick={generatePredictions} 
+                    disabled={loadingPredictions || filteredAnalytics.length === 0}
+                  >
+                    {loadingPredictions ? 'Analyzing...' : 'Generate Predictions'}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {!predictions && !loadingPredictions && (
+                  <div className="text-center py-12">
+                    <TrendingUp className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No predictions yet</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Click "Generate Predictions" to analyze your data and forecast future trends
+                    </p>
+                  </div>
+                )}
+
+                {loadingPredictions && (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Analyzing your data and generating predictions...</p>
+                  </div>
+                )}
+
+                {predictions && (
+                  <div className="space-y-6">
+                    {/* Growth Forecasts */}
+                    <div>
+                      <h3 className="text-xl font-bold mb-4">📈 Growth Forecasts</h3>
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <Card className="border-2">
+                          <CardHeader>
+                            <CardTitle className="text-base">Next 30 Days</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Follower Growth:</span>
+                              <span className="font-semibold text-green-600">
+                                +{predictions.growthForecasts.next30Days.followerGrowth.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Reach Increase:</span>
+                              <span className="font-semibold text-blue-600">
+                                +{predictions.growthForecasts.next30Days.reachIncrease.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Engagement Rate:</span>
+                              <span className="font-semibold text-purple-600">
+                                {predictions.growthForecasts.next30Days.engagementRate.toFixed(1)}%
+                              </span>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card className="border-2">
+                          <CardHeader>
+                            <CardTitle className="text-base">Next 60 Days</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Follower Growth:</span>
+                              <span className="font-semibold text-green-600">
+                                +{predictions.growthForecasts.next60Days.followerGrowth.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Reach Increase:</span>
+                              <span className="font-semibold text-blue-600">
+                                +{predictions.growthForecasts.next60Days.reachIncrease.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Engagement Rate:</span>
+                              <span className="font-semibold text-purple-600">
+                                {predictions.growthForecasts.next60Days.engagementRate.toFixed(1)}%
+                              </span>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card className="border-2">
+                          <CardHeader>
+                            <CardTitle className="text-base">Next 90 Days</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Follower Growth:</span>
+                              <span className="font-semibold text-green-600">
+                                +{predictions.growthForecasts.next90Days.followerGrowth.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Reach Increase:</span>
+                              <span className="font-semibold text-blue-600">
+                                +{predictions.growthForecasts.next90Days.reachIncrease.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Engagement Rate:</span>
+                              <span className="font-semibold text-purple-600">
+                                {predictions.growthForecasts.next90Days.engagementRate.toFixed(1)}%
+                              </span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+
+                    {/* Content Insights */}
+                    <div>
+                      <h3 className="text-xl font-bold mb-4">💡 Content Strategy Insights</h3>
+                      <Card>
+                        <CardContent className="pt-6 space-y-4">
+                          <div>
+                            <h4 className="font-semibold mb-2">Best Performing Content Types:</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {predictions.contentInsights.bestPerformingContentTypes.map((type, i) => (
+                                <span key={i} className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                                  {type}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold mb-2">Optimal Posting Times:</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {predictions.contentInsights.optimalPostingTimes.map((time, i) => (
+                                <span key={i} className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded-full text-sm">
+                                  {time}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold mb-2">Recommended Frequency:</h4>
+                            <p className="text-muted-foreground">{predictions.contentInsights.recommendedFrequency}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Platform Recommendations */}
+                    <div>
+                      <h3 className="text-xl font-bold mb-4">🎯 Platform-Specific Recommendations</h3>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {predictions.platformRecommendations.map((rec, i) => (
+                          <Card key={i}>
+                            <CardHeader>
+                              <div className="flex items-center gap-2">
+                                {getPlatformIcon(rec.platform)}
+                                <CardTitle className="text-base">{rec.platform}</CardTitle>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <p className="text-sm text-muted-foreground">{rec.prediction}</p>
+                              <div>
+                                <h5 className="font-semibold text-sm mb-2">Action Items:</h5>
+                                <ul className="space-y-1">
+                                  {rec.actionItems.map((item, j) => (
+                                    <li key={j} className="text-sm flex items-start gap-2">
+                                      <span className="text-primary mt-1">•</span>
+                                      <span>{item}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Opportunities */}
+                    <div>
+                      <h3 className="text-xl font-bold mb-4">🚀 Growth Opportunities</h3>
+                      <div className="space-y-3">
+                        {predictions.opportunities.map((opp, i) => (
+                          <Card key={i} className={cn(
+                            "border-l-4",
+                            opp.impact === 'high' && "border-l-green-500",
+                            opp.impact === 'medium' && "border-l-yellow-500",
+                            opp.impact === 'low' && "border-l-blue-500"
+                          )}>
+                            <CardContent className="pt-6">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1">
+                                  <h4 className="font-semibold mb-1">{opp.title}</h4>
+                                  <p className="text-sm text-muted-foreground">{opp.description}</p>
+                                </div>
+                                <span className={cn(
+                                  "px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap",
+                                  opp.impact === 'high' && "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+                                  opp.impact === 'medium' && "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+                                  opp.impact === 'low' && "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                                )}>
+                                  {opp.impact} impact
+                                </span>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Risks */}
+                    <div>
+                      <h3 className="text-xl font-bold mb-4">⚠️ Potential Risks & Mitigation</h3>
+                      <div className="space-y-3">
+                        {predictions.risks.map((risk, i) => (
+                          <Card key={i} className="border-l-4 border-l-red-500">
+                            <CardContent className="pt-6">
+                              <h4 className="font-semibold mb-1">{risk.title}</h4>
+                              <p className="text-sm text-muted-foreground mb-2">{risk.description}</p>
+                              <div className="bg-muted p-3 rounded-lg">
+                                <p className="text-sm"><strong>Mitigation:</strong> {risk.mitigation}</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Key Takeaways */}
+                    <div>
+                      <h3 className="text-xl font-bold mb-4">✨ Key Takeaways</h3>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <ul className="space-y-2">
+                            {predictions.keyTakeaways.map((takeaway, i) => (
+                              <li key={i} className="flex items-start gap-3">
+                                <Award className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                                <span>{takeaway}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
