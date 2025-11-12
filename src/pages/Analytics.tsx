@@ -6,6 +6,7 @@ import { AnalyticsData, PostHistory } from "@/types";
 import { Users, Eye, TrendingUp, BarChart3, Calendar as CalendarIcon, Award, Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PostTimingHeatMap } from "@/components/PostTimingHeatMap";
 import {
   Table,
   TableBody,
@@ -517,6 +518,7 @@ export const Analytics = () => {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="platforms">Platforms</TabsTrigger>
             <TabsTrigger value="content">Top Content</TabsTrigger>
+            <TabsTrigger value="timing">⏰ Post Timing</TabsTrigger>
             <TabsTrigger value="history">Post History</TabsTrigger>
             <TabsTrigger value="predictions">🔮 Predictions</TabsTrigger>
           </TabsList>
@@ -794,6 +796,11 @@ export const Analytics = () => {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Post Timing Heat Map Tab */}
+          <TabsContent value="timing" className="space-y-4">
+            <PostTimingHeatMap posts={filteredPostHistory} />
           </TabsContent>
 
           {/* Post History Tab */}
