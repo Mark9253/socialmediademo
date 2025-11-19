@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* Up-stride Brand Colors */
+    /* Up-Stride Brand Colors */
     --background: 0 0% 98%;
     --foreground: 158 89% 8%;
 
@@ -16,30 +16,30 @@
     --popover: 0 0% 100%;
     --popover-foreground: 158 89% 8%;
 
-    /* Primary - Up-stride Teal */
-    --primary: 180 100% 27%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 180 100% 22%;
-    --primary-light: 180 100% 95%;
+    /* Primary - Up-Stride Bright Green/Cyan */
+    --primary: 164 100% 50%;
+    --primary-foreground: 158 89% 8%;
+    --primary-hover: 164 100% 45%;
+    --primary-light: 164 100% 96%;
 
-    /* Secondary - Light Teal */
-    --secondary: 180 50% 88%;
+    /* Secondary - Light Green */
+    --secondary: 164 80% 90%;
     --secondary-foreground: 158 89% 8%;
-    --secondary-hover: 180 50% 85%;
+    --secondary-hover: 164 80% 85%;
 
-    /* Accent - Teal Accent */
-    --accent: 180 80% 85%;
+    /* Accent - Bright Green Accent */
+    --accent: 164 90% 88%;
     --accent-foreground: 158 89% 8%;
-    --accent-hover: 180 80% 80%;
+    --accent-hover: 164 90% 82%;
 
     /* Muted - Light Grays */
-    --muted: 180 10% 92%;
+    --muted: 164 15% 92%;
     --muted-foreground: 158 30% 45%;
 
-    /* Success - Teal Success */
-    --success: 180 100% 35%;
+    /* Success - Green Success */
+    --success: 164 100% 45%;
     --success-foreground: 0 0% 100%;
-    --success-light: 180 100% 95%;
+    --success-light: 164 100% 95%;
 
     /* Warning - Balanced Orange */
     --warning: 25 95% 60%;
@@ -52,9 +52,9 @@
     --destructive-light: 5 75% 95%;
 
     /* Borders & Inputs */
-    --border: 180 20% 88%;
-    --input: 180 20% 88%;
-    --ring: 180 100% 27%;
+    --border: 164 20% 88%;
+    --input: 164 20% 88%;
+    --ring: 164 100% 50%;
 
     /* Platform Colors */
     --twitter: 195 100% 50%;
@@ -64,13 +64,13 @@
     --blog: 180 50% 55%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(180 100% 35%));
+    --gradient-primary: linear-gradient(135deg, hsl(164 100% 50%), hsl(164 100% 40%));
     --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
-    --gradient-brand: linear-gradient(135deg, hsl(180 100% 95%), hsl(180 50% 95%));
+    --gradient-brand: linear-gradient(135deg, hsl(164 100% 96%), hsl(164 80% 92%));
 
     /* Shadows */
-    --shadow-soft: 0 4px 20px hsl(180 20% 80% / 0.15);
-    --shadow-card: 0 2px 12px hsl(180 15% 75% / 0.1);
+    --shadow-soft: 0 4px 20px hsl(164 20% 80% / 0.15);
+    --shadow-card: 0 2px 12px hsl(164 15% 75% / 0.1);
     --shadow-focus: 0 0 0 3px hsl(var(--primary) / 0.15);
 
     /* Radius */
@@ -78,49 +78,49 @@
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 158 89% 8%;
-    --sidebar-primary: 180 100% 27%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 180 50% 95%;
+    --sidebar-primary: 164 100% 50%;
+    --sidebar-primary-foreground: 158 89% 8%;
+    --sidebar-accent: 164 80% 95%;
     --sidebar-accent-foreground: 158 89% 8%;
-    --sidebar-border: 180 20% 88%;
-    --sidebar-ring: 180 100% 27%;
+    --sidebar-border: 164 20% 88%;
+    --sidebar-ring: 164 100% 50%;
   }
 
   .dark {
-    /* Up-stride Dark Mode */
+    /* Up-Stride Dark Mode */
     --background: 158 89% 4%;
-    --foreground: 180 10% 95%;
+    --foreground: 164 10% 95%;
 
     --card: 158 80% 8%;
-    --card-foreground: 180 10% 95%;
+    --card-foreground: 164 10% 95%;
 
     --popover: 158 80% 8%;
-    --popover-foreground: 180 10% 95%;
+    --popover-foreground: 164 10% 95%;
 
-    /* Primary - Brighter Teal for Dark Mode */
-    --primary: 180 100% 40%;
+    /* Primary - Bright Green for Dark Mode */
+    --primary: 164 100% 55%;
     --primary-foreground: 158 89% 4%;
-    --primary-hover: 180 100% 45%;
-    --primary-light: 180 100% 15%;
+    --primary-hover: 164 100% 60%;
+    --primary-light: 164 100% 15%;
 
-    /* Secondary - Dark Teal */
-    --secondary: 180 45% 20%;
-    --secondary-foreground: 180 10% 95%;
-    --secondary-hover: 180 45% 25%;
+    /* Secondary - Dark Green */
+    --secondary: 164 45% 20%;
+    --secondary-foreground: 164 10% 95%;
+    --secondary-hover: 164 45% 25%;
 
-    /* Accent - Dark Teal Accent */
-    --accent: 180 65% 20%;
-    --accent-foreground: 180 10% 95%;
-    --accent-hover: 180 65% 25%;
+    /* Accent - Dark Green Accent */
+    --accent: 164 65% 20%;
+    --accent-foreground: 164 10% 95%;
+    --accent-hover: 164 65% 25%;
 
     /* Muted - Dark Grays */
     --muted: 158 20% 15%;
-    --muted-foreground: 180 15% 60%;
+    --muted-foreground: 164 15% 60%;
 
     /* Status Colors - Dark Mode */
-    --success: 180 100% 45%;
+    --success: 164 100% 50%;
     --success-foreground: 158 89% 4%;
-    --success-light: 180 100% 15%;
+    --success-light: 164 100% 15%;
 
     --warning: 25 95% 55%;
     --warning-foreground: 158 89% 4%;
@@ -133,7 +133,7 @@
     /* Borders & Inputs */
     --border: 158 20% 20%;
     --input: 158 20% 20%;
-    --ring: 180 100% 40%;
+    --ring: 164 100% 55%;
 
     /* Platform Colors (adjusted for dark mode) */
     --twitter: 195 100% 45%;
