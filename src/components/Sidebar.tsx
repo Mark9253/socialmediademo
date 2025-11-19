@@ -17,6 +17,7 @@ import {
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import upstrideMonogram from '@/assets/upstride-monogram.png';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -41,12 +42,12 @@ export const Sidebar = () => {
       <div className="flex items-center justify-between p-6 border-b border-border">
         <div className="flex items-center space-x-3">
           <img 
-            src="/lovable-uploads/31ba5e2c-d963-4d6a-9a7b-05737ff17640.png" 
-            alt="Up-stride Logo" 
+            src={upstrideMonogram} 
+            alt="Up-Stride Logo" 
             className="w-8 h-8 object-contain"
           />
           <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
-            Up-stride
+            Up-Stride
           </h1>
         </div>
         <Button
